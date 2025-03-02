@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{B1FA8C63-9C00-402A-A68B-A82A3BE8505B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DarkestBot", "Source\DarkestBot.csproj", "{C56448AE-F07A-443C-9655-81742CBDB527}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{58EFA255-EA97-4D62-B8C0-414436291349}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DarkestBotTests", "Test\DarkestBotTests.csproj", "{8B58958E-A32B-49F0-8CBE-DDD95843891C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C56448AE-F07A-443C-9655-81742CBDB527}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C56448AE-F07A-443C-9655-81742CBDB527}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C56448AE-F07A-443C-9655-81742CBDB527}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C56448AE-F07A-443C-9655-81742CBDB527}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B58958E-A32B-49F0-8CBE-DDD95843891C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B58958E-A32B-49F0-8CBE-DDD95843891C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B58958E-A32B-49F0-8CBE-DDD95843891C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B58958E-A32B-49F0-8CBE-DDD95843891C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C56448AE-F07A-443C-9655-81742CBDB527} = {B1FA8C63-9C00-402A-A68B-A82A3BE8505B}
+		{8B58958E-A32B-49F0-8CBE-DDD95843891C} = {58EFA255-EA97-4D62-B8C0-414436291349}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BED3713F-9872-4CE9-B823-8A5CC6CDE0C6}
+	EndGlobalSection
+EndGlobal
