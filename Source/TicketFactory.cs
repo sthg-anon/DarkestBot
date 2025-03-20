@@ -21,6 +21,7 @@
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Serilog;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace DarkestBot
@@ -31,9 +32,19 @@ namespace DarkestBot
         private const int RetryDurationMs = 300;
         private const int RetryCount = 3;
         private const int TicketExpireTimeMinutes = 28;
-        private const int CredentialsFileExpectedLineCount = 2;
-        private const string CredentialsFile = "Credentials.txt";
-        private const string KeepCredsFileEnvVar = "DARKEST_BOT_KEEP_CREDS_FILE_ON_SUCCESS";
+
+        private const int STD_INPUT_HANDLE = -10;
+        private const int ENABLE_ECHO_INPUT = 0x0004;
+        private const int ENABLE_LINE_INPUT = 0x0002;
+
+        [DllImport("kernel32.dll")]
+        static extern bool SetConsoleMode(IntPtr hConsoleHandle, int mode);
+
+        [DllImport("kernel32.dll")]
+        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out int mode);
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetStdHandle(int handle);
 
         record Credentials(string Username, string Password);
 
@@ -83,7 +94,6 @@ namespace DarkestBot
                 if (_ticketCache.ExpirationTime.HasValue && _ticketCache.ExpirationTime > DateTime.UtcNow)
                 {
                     Log.Information("Using cached ticket.");
-                    DeleteCredsFile();
 
                     if (string.IsNullOrWhiteSpace(_ticketCache.Account))
                     {
@@ -102,10 +112,10 @@ namespace DarkestBot
                 Log.Information("Retreiving new ticket.");
                 DeleteTicketCache();
 
-                var credentials = await GetCredentialsAsync(token);
+                var credentials = GetCredentials();
                 if (credentials == null)
                 {
-                    Log.Error("Unable to read credentials file.");
+                    Log.Error("Unable to read credentials.");
                     return null;
                 }
                 
@@ -157,10 +167,6 @@ namespace DarkestBot
             catch (Exception ex)
             {
                 throw new TicketException("Unexpected error occurred while getting ticket.", ex);
-            }
-            finally
-            {
-                DeleteCredsFile();
             }
         }
 
@@ -245,71 +251,37 @@ namespace DarkestBot
             }
         }
 
-        private static async Task<Credentials?> GetCredentialsAsync(CancellationToken token = default)
+        static string? ReadPassword()
         {
-            try
-            {
-                if (!File.Exists(CredentialsFile))
-                {
-                    Log.Fatal("Credentials file does not exist.");
-                    return null;
-                }
+            IntPtr handle = GetStdHandle(STD_INPUT_HANDLE);
+            GetConsoleMode(handle, out int mode);
+            SetConsoleMode(handle, mode & ~(ENABLE_ECHO_INPUT)); // Disable input echo
 
-                var credentialsText = await File.ReadAllLinesAsync(CredentialsFile, token);
+            string? password = Console.ReadLine();
 
-                if (credentialsText.Length != CredentialsFileExpectedLineCount)
-                {
-                    Log.Fatal(
-                        "Expected exactly {expected} lines in the credentials file. It had {count} lines.",
-                        CredentialsFileExpectedLineCount,
-                        credentialsText.Length);
-                    return null;
-                }
-
-                var username = credentialsText[0];
-                var password = credentialsText[1];
-
-                if (string.IsNullOrWhiteSpace(username))
-                {
-                    Log.Error("Credentials had a null/empty username.");
-                    return null;
-                }
-
-                if (string.IsNullOrWhiteSpace(password))
-                {
-                    Log.Error("Credentials had a null/empty password.");
-                    return null;
-                }
-
-                return new Credentials(username, password);
-            }
-
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                Log.Fatal(e, "Unable to read credentials file.");
-                return null;
-            }
+            SetConsoleMode(handle, mode); // Restore input echo
+            return password;
         }
 
-        private static void DeleteCredsFile()
+        private static Credentials? GetCredentials()
         {
-            try
+            Console.Write("User name: ");
+            var username = Console.ReadLine();
+            if (string.IsNullOrEmpty(username))
             {
-                if (Environment.GetEnvironmentVariable(KeepCredsFileEnvVar) != null)
-                {
-                    return;
-                }
+                Log.Warning("Null/empty username given.");
+                return null;
+            }
 
-                File.Delete(CredentialsFile);
-            }
-            catch (Exception e)
+            Console.Write("Password: ");
+            var password = ReadPassword();
+            if (string.IsNullOrEmpty(password))
             {
-                Log.Error(e, "Could not delete credentials file!");
+                Log.Warning("Null/empty password given.");
+                return null;
             }
+
+            return new Credentials(username, password);
         }
     }
 }
