@@ -31,11 +31,13 @@ namespace DarkestBot
         private const int InternalServerErrorRangeStart = 500;
         private const int RetryDurationMs = 300;
         private const int RetryCount = 3;
+
+#if DEBUG
         private const int TicketExpireTimeMinutes = 28;
+#endif
 
         private const int STD_INPUT_HANDLE = -10;
         private const int ENABLE_ECHO_INPUT = 0x0004;
-        private const int ENABLE_LINE_INPUT = 0x0002;
 
         [DllImport("kernel32.dll")]
         static extern bool SetConsoleMode(IntPtr hConsoleHandle, int mode);
@@ -60,7 +62,9 @@ namespace DarkestBot
 
         private readonly string _ticketCacheFilePath;
 
+#if DEBUG
         private TicketCacheFile? _ticketCache = null;
+#endif
 
         public TicketFactory(string cacheFilePath = "ticket.json")
         {
@@ -89,6 +93,7 @@ namespace DarkestBot
         {
             try
             {
+#if DEBUG
                 _ticketCache ??= await LoadTicketCacheFileAsync(token) ?? new TicketCacheFile();
 
                 if (_ticketCache.ExpirationTime.HasValue && _ticketCache.ExpirationTime > DateTime.UtcNow)
@@ -109,9 +114,10 @@ namespace DarkestBot
                     }
                 }
 
-                Log.Information("Retreiving new ticket.");
                 DeleteTicketCache();
+#endif
 
+                Log.Information("Retreiving new ticket.");
                 var credentials = GetCredentials();
                 if (credentials == null)
                 {
@@ -146,10 +152,13 @@ namespace DarkestBot
 
                 var ticket = parsedResponse.Ticket ?? throw new TicketException("Ticket field was empty in ticket response.");
 
+
+#if DEBUG
                 _ticketCache.Ticket = ticket;
                 _ticketCache.Account = credentials.Username;
                 _ticketCache.ExpirationTime = DateTime.UtcNow.AddMinutes(TicketExpireTimeMinutes);
                 await SaveTicketCacheFileAsync(_ticketCache, token);
+#endif
 
                 return new Ticket(credentials.Username, ticket);
             }
@@ -171,6 +180,7 @@ namespace DarkestBot
             }
         }
 
+#if DEBUG
         private void DeleteTicketCache()
         {
             try
@@ -196,6 +206,7 @@ namespace DarkestBot
             try
             {
                 var json = JsonSerializer.Serialize(cacheFile);
+
                 await File.WriteAllTextAsync(_ticketCacheFilePath, json, token);
                 Log.Information("Ticket cached to file: {path}", _ticketCacheFilePath);
             }
@@ -251,6 +262,7 @@ namespace DarkestBot
                 return null;
             }
         }
+#endif
 
         static string? ReadPassword()
         {
