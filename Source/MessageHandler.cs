@@ -52,6 +52,8 @@ namespace DarkestBot
             "HLO", // server version
             "IGN", // ignore list
             "ADL", // global op list
+            "TPN", // typing status
+            "PRI", // PRIVATE MESSAGES
             MessageTypes.JCH, // user joined channel
         ];
 
