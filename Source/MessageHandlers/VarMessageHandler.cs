@@ -21,7 +21,6 @@
 using DarkestBot.Model;
 using DarkestBot.Payloads;
 using Serilog;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace DarkestBot.MessageHandlers
