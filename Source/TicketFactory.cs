@@ -147,6 +147,7 @@ namespace DarkestBot
                 var ticket = parsedResponse.Ticket ?? throw new TicketException("Ticket field was empty in ticket response.");
 
                 _ticketCache.Ticket = ticket;
+                _ticketCache.Account = credentials.Username;
                 _ticketCache.ExpirationTime = DateTime.UtcNow.AddMinutes(TicketExpireTimeMinutes);
                 await SaveTicketCacheFileAsync(_ticketCache, token);
 
