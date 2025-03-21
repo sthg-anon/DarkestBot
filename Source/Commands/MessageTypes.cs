@@ -20,6 +20,7 @@
 
 namespace DarkestBot.Commands
 {
+    [Obsolete]
     public static class MessageTypes
     {
         // Client
