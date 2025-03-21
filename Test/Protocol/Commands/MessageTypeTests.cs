@@ -21,7 +21,7 @@
 using DarkestBot.Protocol.Commands;
 using System.Reflection;
 
-namespace DarkestBotTests.Commands
+namespace DarkestBotTests.Protocol.Commands
 {
     public class MessageTypeTests
     {
@@ -32,7 +32,7 @@ namespace DarkestBotTests.Commands
         public void AllDeclaredMessageTypes_ShouldHaveMatchingFieldNameAndCode()
         {
             var messageTypeType = typeof(MessageType);
-            
+
             var fields = messageTypeType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
 
             foreach (var field in fields)
