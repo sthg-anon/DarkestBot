@@ -24,7 +24,7 @@ using Serilog;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
-namespace DarkestBot
+namespace DarkestBot.Login
 {
     internal sealed class TicketFactory
     {
@@ -40,13 +40,13 @@ namespace DarkestBot
         private const int ENABLE_ECHO_INPUT = 0x0004;
 
         [DllImport("kernel32.dll")]
-        static extern bool SetConsoleMode(IntPtr hConsoleHandle, int mode);
+        static extern bool SetConsoleMode(nint hConsoleHandle, int mode);
 
         [DllImport("kernel32.dll")]
-        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out int mode);
+        static extern bool GetConsoleMode(nint hConsoleHandle, out int mode);
 
         [DllImport("kernel32.dll")]
-        static extern IntPtr GetStdHandle(int handle);
+        static extern nint GetStdHandle(int handle);
 
         record Credentials(string Username, string Password);
 
@@ -124,7 +124,7 @@ namespace DarkestBot
                     Log.Error("Unable to read credentials.");
                     return null;
                 }
-                
+
                 var response = await _retryPolicy.ExecuteAsync(async () =>
                 {
                     var content = new FormUrlEncodedContent(
@@ -266,9 +266,9 @@ namespace DarkestBot
 
         static string? ReadPassword()
         {
-            IntPtr handle = GetStdHandle(STD_INPUT_HANDLE);
+            nint handle = GetStdHandle(STD_INPUT_HANDLE);
             GetConsoleMode(handle, out int mode);
-            SetConsoleMode(handle, mode & ~(ENABLE_ECHO_INPUT)); // Disable input echo
+            SetConsoleMode(handle, mode & ~ENABLE_ECHO_INPUT); // Disable input echo
 
             string? password = Console.ReadLine();
 

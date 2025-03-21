@@ -18,28 +18,16 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-namespace DarkestBot
+using System.Text.Json.Serialization;
+
+namespace DarkestBot.Login
 {
-    internal class Ticket
+    internal sealed class TicketResponse
     {
-        public Ticket(string account, string value)
-        {
-            if (string.IsNullOrWhiteSpace(account))
-            {
-                throw new ArgumentException("Ticket account cannot be null/empty/whitespace!", nameof(account));
-            }
+        [JsonPropertyName("ticket")]
+        public string? Ticket { get; set; }
 
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Ticket value cannot be null/empty/whitespace!", nameof(value));
-            }
-
-            Account = account;
-            Value = value;
-        }
-
-        public string Account { get; }
-
-        public string Value { get; }
+        [JsonPropertyName("error")]
+        public string? Error { get; set; }
     }
 }

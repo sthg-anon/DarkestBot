@@ -18,12 +18,16 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-namespace DarkestBot
+#if DEBUG
+namespace DarkestBot.Login
 {
-    internal sealed class TicketException : Exception
+    internal sealed class TicketCacheFile
     {
-        public TicketException(string? message) : base(message) { }
+        public string? Ticket { get; set; }
 
-        public TicketException(string? message, Exception? innerException) : base(message, innerException) { }
+        public string? Account { get; set; }
+
+        public DateTime? ExpirationTime { get; set; }
     }
 }
+#endif

@@ -18,6 +18,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+using DarkestBot.Login;
 using DarkestBot.Model;
 using DarkestBot.Payloads;
 using Serilog;
