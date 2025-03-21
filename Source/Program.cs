@@ -89,24 +89,19 @@ namespace DarkestBot
 
             var streamReader = new FChatStreamReader(ws, state);
 
-            var identifyCommand = new PayloadCommand<IdentityPayload>(MessageType.IDN, new IdentityPayload
-            {
-                Method = "ticket",
-                Account = ticket.Account,
-                Ticket = ticket.Value,
-                Character = "Darkest Bot",
-                ClientName = "DarkestBot",
-                ClientVersion = "0.0.1"
-            });
+            var identifyCommand = CommandFactory.Identify(
+                method: "ticket",
+                account: ticket.Account,
+                ticket: ticket.Value,
+                character: "Darkest Bot",
+                clientName: "DarkestBot",
+                clientVersion: "0.0.1");
 
             streamReader.EnqueueMessage(identifyCommand.MakeFChatCommand());
 
             if (!string.IsNullOrEmpty(state.RoomId))
             {
-                var joinCommand = new PayloadCommand<JoinChannelPayload>(MessageType.JCH, new JoinChannelPayload
-                {
-                    Channel = state.RoomId
-                });
+                var joinCommand = CommandFactory.JoinChannel(state.RoomId);
                 streamReader.EnqueueMessage(joinCommand.MakeFChatCommand());
             }
 

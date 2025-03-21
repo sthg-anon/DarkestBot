@@ -26,7 +26,7 @@ namespace DarkestBot.Protocol.MessageHandlers
     {
         public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
         {
-            return Task.FromResult(new Command(MessageType.PIN));
+            return Task.FromResult((Command?)CommandFactory.Ping());
         }
     }
 }

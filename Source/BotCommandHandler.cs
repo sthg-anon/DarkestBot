@@ -19,6 +19,7 @@
  */
 
 using DarkestBot.Model;
+using DarkestBot.Protocol;
 using DarkestBot.Protocol.Commands;
 using DarkestBot.Protocol.Commands.Payloads;
 using System.Text.Json;
@@ -29,11 +30,18 @@ namespace DarkestBot
     {
         private const string DataDumpCommand = "!datadump";
 
+        private const string ExpectedPotionGiver = "Dice Bot";
+
         public Task<Command?> HandleCommandAsync(string character, string message, CancellationToken token = default)
         {
             if (message.StartsWith(DataDumpCommand))
             {
                 return HandleDataDumpAsync(character);
+            }
+
+            if (PotionParser.TryParse(message, out var potion))
+            {
+                return HandlePotionAsync(potion, character);
             }
 
             return Task.FromResult<Command?>(null);
@@ -44,20 +52,22 @@ namespace DarkestBot
             if(state.Characters.TryGetValue(character, out var data))
             {
                 var dump = JsonSerializer.Serialize(data, jsonOptions);
-                return Task.FromResult<Command?>(new PayloadCommand<ChannelMessagePayload>(MessageType.MSG, new ChannelMessagePayload
-                {
-                    Channel = state.RoomId,
-                    Message = dump
-                }));
+                return Task.FromResult((Command?)CommandFactory.ChannelMessage(state.RoomId, dump));
             }
             else
             {
-                return Task.FromResult<Command?>(new PayloadCommand<ChannelMessagePayload>(MessageType.MSG, new ChannelMessagePayload
-                {
-                    Channel = state.RoomId,
-                    Message = $"No data found for [user]{character}[/user]"
-                }));
+                return Task.FromResult((Command?)CommandFactory.ChannelMessage(state.RoomId, $"No data found for [user]{character}[/user]"));
             }
+        }
+
+        private Task<Command?> HandlePotionAsync(PotionParser.ParsedPotion potion, string potionGiver)
+        {
+            if (!string.Equals(potionGiver, ExpectedPotionGiver, StringComparison.Ordinal))
+            {
+                return Task.FromResult((Command?)CommandFactory.ChannelMessage(state.RoomId, $"Nice try, [user]{potionGiver}[/user]!"));
+            }
+
+            return Task.FromResult((Command?)CommandFactory.ChannelMessage(state.RoomId, $"[user]{potionGiver}[/user] has received: [b]{potion.Name}[/b]"));
         }
     }
 }
