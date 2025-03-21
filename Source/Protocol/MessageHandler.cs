@@ -18,13 +18,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using DarkestBot.Commands;
-using DarkestBot.MessageHandlers;
 using DarkestBot.Model;
+using DarkestBot.Protocol.Commands;
+using DarkestBot.Protocol.MessageHandlers;
 using Serilog;
 using System.Text.Json;
 
-namespace DarkestBot
+namespace DarkestBot.Protocol
 {
     internal sealed class MessageHandler
     {

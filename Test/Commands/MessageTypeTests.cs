@@ -18,7 +18,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using DarkestBot.Commands;
+using DarkestBot.Protocol.Commands;
 using System.Reflection;
 
 namespace DarkestBotTests.Commands

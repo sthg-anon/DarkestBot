@@ -24,7 +24,7 @@ using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 
-namespace DarkestBot
+namespace DarkestBot.Protocol
 {
     internal sealed class FChatStreamReader
     {

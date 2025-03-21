@@ -18,15 +18,32 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using DarkestBot.Commands;
+using System.Text.Json.Serialization;
 
-namespace DarkestBot.MessageHandlers
+namespace DarkestBot.Protocol.Commands.Payloads
 {
-    internal class PingMessageHandler() : IMessageHandler
+    internal class IdentityPayload
     {
-        public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
-        {
-            return Task.FromResult(new Command(MessageType.PIN));
-        }
+        [JsonPropertyName("method")]
+        public string? Method { get; set; }
+
+        [JsonPropertyName("account")]
+        public string? Account { get; set; }
+
+
+        [JsonPropertyName("ticket")]
+        public string? Ticket { get; set; }
+
+
+        [JsonPropertyName("character")]
+        public string? Character { get; set; }
+
+
+        [JsonPropertyName("cname")]
+        public string? ClientName { get; set; }
+
+
+        [JsonPropertyName("cversion")]
+        public string? ClientVersion { get; set; }
     }
 }

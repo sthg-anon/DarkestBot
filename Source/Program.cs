@@ -18,10 +18,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using DarkestBot.Commands;
-using DarkestBot.Commands.Payloads;
 using DarkestBot.Login;
 using DarkestBot.Model;
+using DarkestBot.Protocol;
+using DarkestBot.Protocol.Commands;
+using DarkestBot.Protocol.Commands.Payloads;
 using Serilog;
 using System.Net.WebSockets;
 

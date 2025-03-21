@@ -18,17 +18,19 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DarkestBot.Commands.Payloads
+namespace DarkestBot.Protocol.Commands.Payloads
 {
-    internal sealed class VarPayload
+    internal sealed class ChannelInvitePayload
     {
-        [JsonPropertyName("value")]
-        public JsonElement? Value { get; set; }
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
 
-        [JsonPropertyName("variable")]
-        public string? Variable { get; set; }
+        [JsonPropertyName("sender")]
+        public string? Sender { get; set; }
+
+        [JsonPropertyName("title")]
+        public string? Title { get; set; }
     }
 }

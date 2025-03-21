@@ -18,15 +18,15 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-namespace DarkestBot.Commands
-{
-    internal class Command(MessageType messageType)
-    {
-        public MessageType MessageType { get; } = messageType;
+using DarkestBot.Protocol.Commands;
 
-        public virtual string MakeFChatCommand()
+namespace DarkestBot.Protocol.MessageHandlers
+{
+    internal class PingMessageHandler() : IMessageHandler
+    {
+        public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
         {
-            return MessageType.Code;
+            return Task.FromResult(new Command(MessageType.PIN));
         }
     }
 }
