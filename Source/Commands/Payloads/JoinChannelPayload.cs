@@ -20,16 +20,10 @@
 
 using System.Text.Json.Serialization;
 
-namespace DarkestBot.Payloads
+namespace DarkestBot.Commands.Payloads
 {
-    internal sealed class ChannelMessagePayload
+    internal sealed class JoinChannelPayload
     {
-        [JsonPropertyName("character")]
-        public string? Character { get; set; }
-
-        [JsonPropertyName("message")]
-        public string? Message { get; set; }
-
         [JsonPropertyName("channel")]
         public string? Channel { get; set; }
     }

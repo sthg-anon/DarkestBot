@@ -18,6 +18,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+using DarkestBot.Commands;
+
 namespace DarkestBot.MessageHandlers
 {
     internal class PingMessageHandler() : IMessageHandler

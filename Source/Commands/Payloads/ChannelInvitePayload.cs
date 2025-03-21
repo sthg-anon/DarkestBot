@@ -18,20 +18,19 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace DarkestBot
+namespace DarkestBot.Commands.Payloads
 {
-    internal sealed class PayloadCommand<T>(string messageType, T payload) : Command(messageType) where T : class
+    internal sealed class ChannelInvitePayload
     {
-        private static JsonSerializerOptions _serializerOptions = new() { WriteIndented = false };
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
 
-        public T Payload { get; } = payload;
+        [JsonPropertyName("sender")]
+        public string? Sender { get; set; }
 
-        public override string MakeFChatCommand()
-        {
-            var json = JsonSerializer.Serialize(Payload, _serializerOptions);
-            return $"{MessageType} {json}";
-        }
+        [JsonPropertyName("title")]
+        public string? Title { get; set; }
     }
 }

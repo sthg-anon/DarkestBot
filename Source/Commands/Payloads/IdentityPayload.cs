@@ -18,17 +18,32 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DarkestBot.Payloads
+namespace DarkestBot.Commands.Payloads
 {
-    internal sealed class VarPayload
+    internal class IdentityPayload
     {
-        [JsonPropertyName("value")]
-        public JsonElement? Value { get; set; }
+        [JsonPropertyName("method")]
+        public string? Method { get; set; }
 
-        [JsonPropertyName("variable")]
-        public string? Variable { get; set; }
+        [JsonPropertyName("account")]
+        public string? Account { get; set; }
+
+
+        [JsonPropertyName("ticket")]
+        public string? Ticket { get; set; }
+
+
+        [JsonPropertyName("character")]
+        public string? Character { get; set; }
+
+
+        [JsonPropertyName("cname")]
+        public string? ClientName { get; set; }
+
+
+        [JsonPropertyName("cversion")]
+        public string? ClientVersion { get; set; }
     }
 }

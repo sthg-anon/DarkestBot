@@ -18,8 +18,9 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+using DarkestBot.Commands;
+using DarkestBot.Commands.Payloads;
 using DarkestBot.Model;
-using DarkestBot.Payloads;
 using System.Text.Json;
 
 namespace DarkestBot

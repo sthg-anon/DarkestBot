@@ -18,13 +18,15 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using System.Text.Json.Serialization;
-
-namespace DarkestBot.Payloads
+namespace DarkestBot.Commands
 {
-    internal sealed class JoinChannelPayload
+    internal class Command(string messageType)
     {
-        [JsonPropertyName("channel")]
-        public string? Channel { get; set; }
+        public string MessageType { get; } = messageType;
+
+        public virtual string MakeFChatCommand()
+        {
+            return MessageType;
+        }
     }
 }

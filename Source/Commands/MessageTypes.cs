@@ -18,32 +18,20 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using System.Text.Json.Serialization;
-
-namespace DarkestBot.Payloads
+namespace DarkestBot.Commands
 {
-    internal class IdentityPayload
+    public static class MessageTypes
     {
-        [JsonPropertyName("method")]
-        public string? Method { get; set; }
+        // Client
 
-        [JsonPropertyName("account")]
-        public string? Account { get; set; }
+        // Client and Server
+        public const string MSG = "MSG"; // channel message
+        public const string IDN = "IDN";
+        public const string PIN = "PIN";
+        public const string JCH = "JCH"; // Join channel / Channel Joined
 
-
-        [JsonPropertyName("ticket")]
-        public string? Ticket { get; set; }
-
-
-        [JsonPropertyName("character")]
-        public string? Character { get; set; }
-
-
-        [JsonPropertyName("cname")]
-        public string? ClientName { get; set; }
-
-
-        [JsonPropertyName("cversion")]
-        public string? ClientVersion { get; set; }
+        // Server
+        public const string CIU = "CIU"; // Channel invite
+        public const string VAR = "VAR"; // Server variable
     }
 }
