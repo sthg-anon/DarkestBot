@@ -20,13 +20,13 @@
 
 namespace DarkestBot.Commands
 {
-    internal class Command(string messageType)
+    internal class Command(MessageType messageType)
     {
-        public string MessageType { get; } = messageType;
+        public MessageType MessageType { get; } = messageType;
 
         public virtual string MakeFChatCommand()
         {
-            return MessageType;
+            return MessageType.Code;
         }
     }
 }

@@ -58,7 +58,7 @@ namespace DarkestBot.MessageHandlers
             state.RoomId = parsedPayload.Name;
             await state.SaveAsync(token);
 
-            return new PayloadCommand<JoinChannelPayload>(MessageTypes.JCH, new JoinChannelPayload
+            return new PayloadCommand<JoinChannelPayload>(MessageType.JCH, new JoinChannelPayload
             {
                 Channel = parsedPayload.Name
             });

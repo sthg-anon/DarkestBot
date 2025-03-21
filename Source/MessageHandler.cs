@@ -36,36 +36,36 @@ namespace DarkestBot
             PropertyNameCaseInsensitive = true
         };
 
-        private readonly Dictionary<string, IMessageHandler> _messageHandlers;
+        private readonly Dictionary<MessageType, IMessageHandler> _messageHandlers;
 
-        private readonly HashSet<string> _ignoredMessages =
+        private readonly HashSet<MessageType> _ignoredMessages =
         [
-            MessageTypes.IDN, // character's own name on connect
-            "FRL", // friends list
-            "CON", // connection count
-            "LIS", // list of all online characters
-            "NLN", // person went online
-            "FLN", // person went offline
-            "STA", // person changed their status
-            "COL", // channel op list
-            "ICH", // initial channel data (user list, name, mode)
-            "CDS", // Channel description change
-            "HLO", // server version
-            "IGN", // ignore list
-            "ADL", // global op list
-            "TPN", // typing status
-            "PRI", // PRIVATE MESSAGES
-            MessageTypes.JCH, // user joined channel
+            MessageType.IDN, // character's own name on connect
+            MessageType.FRL, // friends list
+            MessageType.CON, // connection count
+            MessageType.LIS, // list of all online characters
+            MessageType.NLN, // person went online
+            MessageType.FLN, // person went offline
+            MessageType.STA, // person changed their status
+            MessageType.COL, // channel op list
+            MessageType.ICH, // initial channel data (user list, name, mode)
+            MessageType.CDS, // Channel description change
+            MessageType.HLO, // server version
+            MessageType.IGN, // ignore list
+            MessageType.ADL, // global op list
+            MessageType.TPN, // typing status
+            MessageType.PRI, // PRIVATE MESSAGES
+            MessageType.JCH, // user joined channel
         ];
 
         public MessageHandler(State state)
         {
             _messageHandlers = new()
             {
-                { MessageTypes.PIN, new PingMessageHandler() },
-                { MessageTypes.CIU, new ChannelInviteHandler(_jsonOptions, state) },
-                { MessageTypes.VAR, new VarMessageHandler(_jsonOptions, state) },
-                { MessageTypes.MSG, new ChannelMessageHandler(_jsonOptions, state) }
+                { MessageType.PIN, new PingMessageHandler() },
+                { MessageType.CIU, new ChannelInviteHandler(_jsonOptions, state) },
+                { MessageType.VAR, new VarMessageHandler(_jsonOptions, state) },
+                { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, state) }
             };
         }
 
@@ -77,9 +77,14 @@ namespace DarkestBot
                 return null;
             }
 
-            var messageType = message[..MessageTypeLength];
+            var messageType = MessageType.Get(message[..MessageTypeLength]);
 
-            if (_messageHandlers.TryGetValue(messageType, out var handler))
+            if (messageType == null)
+            {
+                Log.Information("Received unknown message (message type unknown): {message}", message);
+                return null;
+            }
+            else if (_messageHandlers.TryGetValue(messageType, out var handler))
             {
                 string payload = string.Empty;
                 if (message.Length >= MinPayloadMessageLength)
@@ -101,7 +106,7 @@ namespace DarkestBot
             }
             else
             {
-                Log.Information("Received unknown message: {message}", message);
+                Log.Information("Message was not handled or ignored: {message}", message);
                 return null;
             }
         }

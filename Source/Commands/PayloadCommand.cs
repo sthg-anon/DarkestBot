@@ -22,7 +22,7 @@ using System.Text.Json;
 
 namespace DarkestBot.Commands
 {
-    internal sealed class PayloadCommand<T>(string messageType, T payload) : Command(messageType) where T : class
+    internal sealed class PayloadCommand<T>(MessageType messageType, T payload) : Command(messageType) where T : class
     {
         private static JsonSerializerOptions _serializerOptions = new() { WriteIndented = false };
 
@@ -31,7 +31,7 @@ namespace DarkestBot.Commands
         public override string MakeFChatCommand()
         {
             var json = JsonSerializer.Serialize(Payload, _serializerOptions);
-            return $"{MessageType} {json}";
+            return $"{MessageType.Code} {json}";
         }
     }
 }

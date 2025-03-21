@@ -88,7 +88,7 @@ namespace DarkestBot
 
             var streamReader = new FChatStreamReader(ws, state);
 
-            var identifyCommand = new PayloadCommand<IdentityPayload>(MessageTypes.IDN, new IdentityPayload
+            var identifyCommand = new PayloadCommand<IdentityPayload>(MessageType.IDN, new IdentityPayload
             {
                 Method = "ticket",
                 Account = ticket.Account,
@@ -102,7 +102,7 @@ namespace DarkestBot
 
             if (!string.IsNullOrEmpty(state.RoomId))
             {
-                var joinCommand = new PayloadCommand<JoinChannelPayload>(MessageTypes.JCH, new JoinChannelPayload
+                var joinCommand = new PayloadCommand<JoinChannelPayload>(MessageType.JCH, new JoinChannelPayload
                 {
                     Channel = state.RoomId
                 });

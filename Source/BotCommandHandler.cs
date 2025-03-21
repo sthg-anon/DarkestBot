@@ -44,7 +44,7 @@ namespace DarkestBot
             if(state.Characters.TryGetValue(character, out var data))
             {
                 var dump = JsonSerializer.Serialize(data, jsonOptions);
-                return Task.FromResult<Command?>(new PayloadCommand<ChannelMessagePayload>(MessageTypes.MSG, new ChannelMessagePayload
+                return Task.FromResult<Command?>(new PayloadCommand<ChannelMessagePayload>(MessageType.MSG, new ChannelMessagePayload
                 {
                     Channel = state.RoomId,
                     Message = dump
@@ -52,7 +52,7 @@ namespace DarkestBot
             }
             else
             {
-                return Task.FromResult<Command?>(new PayloadCommand<ChannelMessagePayload>(MessageTypes.MSG, new ChannelMessagePayload
+                return Task.FromResult<Command?>(new PayloadCommand<ChannelMessagePayload>(MessageType.MSG, new ChannelMessagePayload
                 {
                     Channel = state.RoomId,
                     Message = $"No data found for [user]{character}[/user]"
