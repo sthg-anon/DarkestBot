@@ -90,8 +90,6 @@ namespace DarkestBot.Commands
             }
         }
 
-        public override string ToString() => Code;
-
         public static MessageType? Get(string code)
         {
             if (_registry.TryGetValue(code, out var messageType))
