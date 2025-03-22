@@ -26,7 +26,7 @@ using System.Text.Json;
 
 namespace DarkestBot.UserCommands
 {
-    internal sealed class BotCommandHandler(JsonSerializerOptions jsonOptions, State state, CommandMode mode)
+    internal sealed class UserCommandHandler(JsonSerializerOptions jsonOptions, State state, UserCommandMode mode)
     {
         private const string DataDumpCommand = "!datadump";
         private const string GeneratePotionCommand = "!generatepotion";
@@ -39,19 +39,19 @@ namespace DarkestBot.UserCommands
 
         public Task<Command?> HandleCommandAsync(string character, string message, CancellationToken token = default)
         {
-            if (mode == CommandMode.Private && message.StartsWith(DataDumpCommand, StringComparison.OrdinalIgnoreCase))
+            if (mode == UserCommandMode.Private && message.StartsWith(DataDumpCommand, StringComparison.OrdinalIgnoreCase))
             {
                 return HandleDataDumpAsync(character);
             }
 
-            if (mode == CommandMode.Public && message.StartsWith(GeneratePotionCommand, StringComparison.OrdinalIgnoreCase))
+            if (mode == UserCommandMode.Public && message.StartsWith(GeneratePotionCommand, StringComparison.OrdinalIgnoreCase))
             {
                 Log.Information("{character} wants to buy a potion!", character);
                 _potionBuyers.Enqueue(character);
                 return Task.FromResult<Command?>(null);
             }
 
-            if (mode == CommandMode.Public && PotionParser.TryParse(message, out var potion))
+            if (mode == UserCommandMode.Public && PotionParser.TryParse(message, out var potion))
             {
                 return HandlePotionAsync(potion, character);
             }

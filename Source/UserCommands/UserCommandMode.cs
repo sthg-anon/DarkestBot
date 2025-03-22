@@ -20,7 +20,7 @@
 
 namespace DarkestBot.UserCommands
 {
-    internal enum CommandMode
+    internal enum UserCommandMode
     {
         Public,
         Private

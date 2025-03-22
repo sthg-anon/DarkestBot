@@ -29,7 +29,7 @@ namespace DarkestBot.Protocol.MessageHandlers
 {
     internal sealed class ChannelMessageHandler(JsonSerializerOptions jsonOptions, State state) : IMessageHandler
     {
-        private readonly BotCommandHandler _commandHandler = new(jsonOptions, state, CommandMode.Public);
+        private readonly UserCommandHandler _commandHandler = new(jsonOptions, state, UserCommandMode.Public);
 
         public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
         {
