@@ -39,12 +39,12 @@ namespace DarkestBot
 
         public Task<Command?> HandleCommandAsync(string character, string message, CancellationToken token = default)
         {
-            if (message.StartsWith(DataDumpCommand))
+            if (message.StartsWith(DataDumpCommand, StringComparison.OrdinalIgnoreCase))
             {
                 return HandleDataDumpAsync(character);
             }
 
-            if (message.StartsWith(GeneratePotionCommand))
+            if (message.StartsWith(GeneratePotionCommand, StringComparison.OrdinalIgnoreCase))
             {
                 Log.Information("{character} wants to buy a potion!", character);
                 _potionBuyers.Enqueue(character);
