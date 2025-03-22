@@ -18,16 +18,14 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using DarkestBot.Model;
-using DarkestBot.Protocol;
-
-namespace DarkestBot.UserCommands
+namespace DarkestBot.Model
 {
-    internal sealed class PrivateChatResponser(ICommandSender commandSender, StateManager stateManager, string character) : IChatResponder
+    internal sealed class TransientState
     {
-        public void SendChatMessage(string message)
-        {
-            commandSender.SendCommand(CommandFactory.PrivateMessage(stateManager, character, message));
-        }
+        private const int DefaultMaxChatByteCount = 4096;
+
+        public int MaxChatByteCount { get; set; } = DefaultMaxChatByteCount;
+
+        public double ChannelMessageDelay { get; set; } = 0.0;
     }
 }

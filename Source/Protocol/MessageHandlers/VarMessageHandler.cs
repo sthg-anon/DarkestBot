@@ -25,7 +25,7 @@ using System.Text.Json;
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal sealed class VarMessageHandler(JsonSerializerOptions jsonOptions, State state) : IMessageHandler
+    internal sealed class VarMessageHandler(JsonSerializerOptions jsonOptions, StateManager stateManager) : IMessageHandler
     {
         private const string ChatMaxVar = "chat_max";
         private const string MessageDelayVar = "msg_flood";
@@ -53,8 +53,8 @@ namespace DarkestBot.Protocol.MessageHandlers
 
                 if (parsedPayload.Value.Value.TryGetInt32(out var maxChatBytes))
                 {
-                    state.MaxChatByteCount = maxChatBytes;
-                    Log.Information("Max channel message length: {value}", state.MaxChatByteCount);
+                    stateManager.TransientState.MaxChatByteCount = maxChatBytes;
+                    Log.Information("Max channel message length: {value}", stateManager.TransientState.MaxChatByteCount);
                 }
                 else
                 {
@@ -71,8 +71,8 @@ namespace DarkestBot.Protocol.MessageHandlers
 
                 if (parsedPayload.Value.Value.TryGetDouble(out var messageDelaySeconds))
                 {
-                    state.ChannelMessageDelay = messageDelaySeconds;
-                    Log.Information("Message delay duration: {value}", state.ChannelMessageDelay);
+                    stateManager.TransientState.ChannelMessageDelay = messageDelaySeconds;
+                    Log.Information("Message delay duration: {value}", stateManager.TransientState.ChannelMessageDelay);
                 }
                 else
                 {

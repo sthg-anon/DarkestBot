@@ -25,7 +25,7 @@ using System.Text.Json;
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal sealed class ChannelInviteHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, State state) : IAsyncMessageHandler
+    internal sealed class ChannelInviteHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, StateManager stateManager) : IAsyncMessageHandler
     {
         public async Task HandleMessageAsync(string? payload, CancellationToken token = default)
         {
@@ -36,8 +36,10 @@ namespace DarkestBot.Protocol.MessageHandlers
 
             Log.Information("Received a channel invite to {channelName} by {character}", parsedPayload.Title, parsedPayload.Sender);
 
-            state.RoomId = parsedPayload.Name;
-            await state.SaveAsync(token);
+            await stateManager.ModifyAsync(state =>
+            {
+                state.RoomId = parsedPayload.Name;
+            }, token);
 
             commandSender.SendCommand(CommandFactory.JoinChannel(parsedPayload.Name));
         }

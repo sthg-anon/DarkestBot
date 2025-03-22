@@ -23,7 +23,7 @@ namespace DarkestBot.Model
 {
     internal static class StateExtensions
     {
-        public static async Task AddPotionAsync(this State state, string characterName, Potion potion, CancellationToken token = default)
+        public static void AddPotion(this State state, string characterName, Potion potion)
         {
             if (potion.Name == null || potion.Eicon == null || potion.Description == null)
             {
@@ -39,8 +39,6 @@ namespace DarkestBot.Model
 
             character.Potions ??= [];
             character.Potions.Add(potion);
-
-            await state.SaveAsync(token);
         }
     }
 }

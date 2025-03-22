@@ -26,9 +26,9 @@ using System.Text.Json;
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal sealed class PrivateMessageHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, State state) : IAsyncMessageHandler
+    internal sealed class PrivateMessageHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, StateManager stateManager) : IAsyncMessageHandler
     {
-        private readonly UserCommandHandler _commandHandler = new(jsonOptions, state, commandSender, UserCommandMode.Private);
+        private readonly UserCommandHandler _commandHandler = new(jsonOptions, stateManager, commandSender, UserCommandMode.Private);
 
         public async Task HandleMessageAsync(string? payload, CancellationToken token = default)
         {
@@ -49,7 +49,7 @@ namespace DarkestBot.Protocol.MessageHandlers
                 return;
             }
 
-            var responder = new PrivateChatResponser(commandSender, state, parsedPayload.Character);
+            var responder = new PrivateChatResponser(commandSender, stateManager, parsedPayload.Character);
             await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, responder, token);
         }
     }

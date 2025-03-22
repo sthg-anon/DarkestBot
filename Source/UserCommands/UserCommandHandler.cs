@@ -36,17 +36,18 @@ namespace DarkestBot.UserCommands
         private readonly IUserCommand[] _commands;
         private readonly IAsyncUserCommand[] _asyncCommands;
 
-        public UserCommandHandler(JsonSerializerOptions jsonOptions, State state, ICommandSender commandSender, UserCommandMode mode)
+        public UserCommandHandler(JsonSerializerOptions jsonOptions, StateManager stateManager, ICommandSender commandSender, UserCommandMode mode)
         {
             _mode = mode;
             _commands = [
-                new DataDumpCommand(jsonOptions, state),
+                new DataDumpCommand(jsonOptions, stateManager),
                 new BuyPotionCommand(_potionBuyers),
-                new DiceBotGivePotionCommand(_potionBuyers, state),
                 new DiceBotRefusePotionCommand(_potionBuyers)
             ];
 
-            _asyncCommands = [];
+            _asyncCommands = [
+                new DiceBotGivePotionCommand(_potionBuyers, stateManager)
+            ];
         }
 
         public async Task HandleCommandAsync(string character, string message, IChatResponder responder, CancellationToken token = default)

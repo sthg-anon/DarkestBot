@@ -51,9 +51,9 @@ namespace DarkestBot
                 cancelTokenSource.Cancel();
             };
 
-            var state = await State.LoadAsync(cancelTokenSource.Token);
+            var stateManager = await StateManager.LoadAsync(cancelTokenSource.Token);
 
-            if (state == null)
+            if (stateManager == null)
             {
                 Log.Error("Unable to read state file. Human intervention required.");
                 return;
@@ -61,7 +61,7 @@ namespace DarkestBot
 
             try
             {
-                await RunAsync(state, cancelTokenSource.Token);
+                await RunAsync(stateManager, cancelTokenSource.Token);
             }
             catch (TaskCanceledException)
             {
@@ -73,7 +73,7 @@ namespace DarkestBot
             }
         }
 
-        private static async Task RunAsync(State state, CancellationToken token = default)
+        private static async Task RunAsync(StateManager stateManager, CancellationToken token = default)
         {
             var ticketFactory = new TicketFactory();
             var ticket = await ticketFactory.GetTicketAsync(token);
@@ -89,8 +89,8 @@ namespace DarkestBot
             Log.Information("Connected!");
 
             var outgoingCommandQueue = new ConcurrentCommandQueue();
-            var messageHandler = new MessageHandler(state, outgoingCommandQueue);
-            var streamReader = new FChatStreamReader(ws, state, outgoingCommandQueue, messageHandler);
+            var messageHandler = new MessageHandler(stateManager, outgoingCommandQueue);
+            var streamReader = new FChatStreamReader(ws, stateManager, outgoingCommandQueue, messageHandler);
 
             var identifyCommand = CommandFactory.Identify(
                 method: "ticket",
@@ -102,9 +102,9 @@ namespace DarkestBot
 
             outgoingCommandQueue.SendCommand(identifyCommand);
 
-            if (!string.IsNullOrEmpty(state.RoomId))
+            if (!string.IsNullOrEmpty(stateManager.State.RoomId))
             {
-                var joinCommand = CommandFactory.JoinChannel(state.RoomId);
+                var joinCommand = CommandFactory.JoinChannel(stateManager.State.RoomId);
                 outgoingCommandQueue.SendCommand(joinCommand);
             }
 

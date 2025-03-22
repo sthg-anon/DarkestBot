@@ -22,7 +22,6 @@ using DarkestBot.Model;
 using Serilog;
 using System.Net.WebSockets;
 using System.Text;
-using System.Threading.Channels;
 
 namespace DarkestBot.Protocol
 {
@@ -34,14 +33,14 @@ namespace DarkestBot.Protocol
 
         private readonly ClientWebSocket _webSocket;
         private readonly MessageHandler _messageHandler;
-        private readonly State _state;
+        private readonly StateManager _stateManager;
         private readonly ICommandQueue _outgoingCommandQueue;
 
-        public FChatStreamReader(ClientWebSocket webSocket, State state, ICommandQueue outgoingMessages, MessageHandler messageHandler)
+        public FChatStreamReader(ClientWebSocket webSocket, StateManager stateManager, ICommandQueue outgoingMessages, MessageHandler messageHandler)
         {
             _webSocket = webSocket;
             _messageHandler = messageHandler;
-            _state = state;
+            _stateManager = stateManager;
             _outgoingCommandQueue = outgoingMessages;
         }
 
@@ -57,7 +56,7 @@ namespace DarkestBot.Protocol
                     await _webSocket.SendAsync(segment, WebSocketMessageType.Text, true, token);
                 }
 
-                var delayLength = Math.Max(_state.ChannelMessageDelay, MinSecondsBetweenSend) + DelayPadding;
+                var delayLength = Math.Max(_stateManager.TransientState.ChannelMessageDelay, MinSecondsBetweenSend) + DelayPadding;
                 await Task.Delay(TimeSpan.FromSeconds(delayLength), token);
             }
         }

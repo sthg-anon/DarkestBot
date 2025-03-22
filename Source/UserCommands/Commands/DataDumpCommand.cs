@@ -23,7 +23,7 @@ using System.Text.Json;
 
 namespace DarkestBot.UserCommands.Commands
 {
-    internal sealed class DataDumpCommand(JsonSerializerOptions jsonOptions, State state) : IUserCommand
+    internal sealed class DataDumpCommand(JsonSerializerOptions jsonOptions, StateManager stateManager) : IUserCommand
     {
         private const string CommandPrefix = "!datadump";
 
@@ -36,7 +36,7 @@ namespace DarkestBot.UserCommands.Commands
                 return;
             }
 
-            if (state.Characters.TryGetValue(commandSender, out var data))
+            if (stateManager.State.Characters.TryGetValue(commandSender, out var data))
             {
                 var dump = JsonSerializer.Serialize(data, jsonOptions);
                 responder.SendChatMessage(dump);

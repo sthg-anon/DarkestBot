@@ -58,19 +58,19 @@ namespace DarkestBot.Protocol
             MessageType.JCH, // user joined channel
         ];
 
-        public MessageHandler(State state, ICommandSender commandSender)
+        public MessageHandler(StateManager stateManager, ICommandSender commandSender)
         {
             _messageHandlers = new()
             {
                 { MessageType.PIN, new PingMessageHandler(commandSender) },
-                { MessageType.VAR, new VarMessageHandler(_jsonOptions, state) }
+                { MessageType.VAR, new VarMessageHandler(_jsonOptions, stateManager) }
             };
 
             _asyncMessageHandlers = new()
             {
-                { MessageType.CIU, new ChannelInviteHandler(_jsonOptions, commandSender, state) },
-                { MessageType.PRI, new PrivateMessageHandler(_jsonOptions, commandSender, state) },
-                { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, commandSender, state) }
+                { MessageType.CIU, new ChannelInviteHandler(_jsonOptions, commandSender, stateManager) },
+                { MessageType.PRI, new PrivateMessageHandler(_jsonOptions, commandSender, stateManager) },
+                { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, commandSender, stateManager) }
             };
         }
 

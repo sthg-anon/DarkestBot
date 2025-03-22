@@ -23,11 +23,11 @@ using DarkestBot.Protocol;
 
 namespace DarkestBot.UserCommands
 {
-    internal sealed class ChannelChatResponder(ICommandSender commandSender, State state, string channelId) : IChatResponder
+    internal sealed class ChannelChatResponder(ICommandSender commandSender, StateManager stateManager, string channelId) : IChatResponder
     {
         public void SendChatMessage(string message)
         {
-            commandSender.SendCommand(CommandFactory.ChannelMessage(state, channelId, message));
+            commandSender.SendCommand(CommandFactory.ChannelMessage(stateManager, channelId, message));
         }
     }
 }

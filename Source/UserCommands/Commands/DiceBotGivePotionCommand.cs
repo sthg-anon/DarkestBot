@@ -23,7 +23,7 @@ using Serilog;
 
 namespace DarkestBot.UserCommands.Commands
 {
-    internal sealed class DiceBotGivePotionCommand(Queue<string> potionBuyers, State state) : IAsyncUserCommand
+    internal sealed class DiceBotGivePotionCommand(Queue<string> potionBuyers, StateManager stateManager) : IAsyncUserCommand
     {
         private const string ExpectedPotionGiver = "Dice Bot";
 
@@ -45,7 +45,10 @@ namespace DarkestBot.UserCommands.Commands
             {
                 Log.Information("{buyer} bought a potion!", potionBuyer);
                 responder.SendChatMessage($"[user]{potionBuyer}[/user] has received: [b]{potion.Name}[/b]");
-                await state.AddPotionAsync(potionBuyer, potion, token);
+                await stateManager.ModifyAsync(state =>
+                {
+                    state.AddPotion(potionBuyer, potion);
+                }, token);
                 return;
             }
 

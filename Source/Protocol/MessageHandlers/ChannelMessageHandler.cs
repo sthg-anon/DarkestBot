@@ -26,9 +26,9 @@ using System.Text.Json;
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal sealed class ChannelMessageHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, State state) : IAsyncMessageHandler
+    internal sealed class ChannelMessageHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, StateManager stateManager) : IAsyncMessageHandler
     {
-        private readonly UserCommandHandler _commandHandler = new(jsonOptions, state, commandSender, UserCommandMode.Public);
+        private readonly UserCommandHandler _commandHandler = new(jsonOptions, stateManager, commandSender, UserCommandMode.Public);
 
         public async Task HandleMessageAsync(string? payload, CancellationToken token = default)
         {
@@ -37,7 +37,7 @@ namespace DarkestBot.Protocol.MessageHandlers
                 return;
             }
 
-            if (!parsedPayload.Channel?.Equals(state.RoomId) ?? false)
+            if (!parsedPayload.Channel?.Equals(stateManager.State.RoomId) ?? false)
             {
                 Log.Warning(
                     "Received a message from a strange channel ({channel}) from {sender}: {message}",
@@ -65,7 +65,7 @@ namespace DarkestBot.Protocol.MessageHandlers
                 return;
             }
 
-            var responder = new ChannelChatResponder(commandSender, state, parsedPayload.Channel);
+            var responder = new ChannelChatResponder(commandSender, stateManager, parsedPayload.Channel);
             await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, responder, token);
         }
     }
