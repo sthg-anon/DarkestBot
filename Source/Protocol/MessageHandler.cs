@@ -22,6 +22,7 @@ using DarkestBot.Model;
 using DarkestBot.Protocol.Commands;
 using DarkestBot.Protocol.MessageHandlers;
 using Serilog;
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace DarkestBot.Protocol
@@ -37,6 +38,7 @@ namespace DarkestBot.Protocol
         };
 
         private readonly Dictionary<MessageType, IMessageHandler> _messageHandlers;
+        private readonly ConcurrentQueue<Command> _outgoingQueue;
 
         private readonly HashSet<MessageType> _ignoredMessages =
         [
@@ -57,7 +59,7 @@ namespace DarkestBot.Protocol
             MessageType.JCH, // user joined channel
         ];
 
-        public MessageHandler(State state)
+        public MessageHandler(State state, ConcurrentQueue<Command> outgoingQueue)
         {
             _messageHandlers = new()
             {
@@ -67,9 +69,11 @@ namespace DarkestBot.Protocol
                 { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, state) },
                 { MessageType.PRI, new PrivateMessageHandler(_jsonOptions, state) }
             };
+
+            _outgoingQueue = outgoingQueue;
         }
 
-        public async Task<string?> HandleMessageAsync(string message, CancellationToken token = default)
+        public async Task<Command?> HandleMessageAsync(string message, CancellationToken token = default)
         {
             if (message.Length < MessageTypeLength)
             {
@@ -98,7 +102,7 @@ namespace DarkestBot.Protocol
                     return null;
                 }
 
-                return response.MakeFChatCommand();
+                return response;
             }
             else if (_ignoredMessages.Contains(messageType))
             {

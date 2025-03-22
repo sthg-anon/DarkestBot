@@ -19,6 +19,7 @@
  */
 
 using DarkestBot.Model;
+using DarkestBot.Protocol.Commands;
 using Serilog;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
@@ -36,21 +37,23 @@ namespace DarkestBot.Protocol
         private readonly MessageHandler _messageHandler;
         private readonly State _state;
 
-        private readonly ConcurrentQueue<string> _outgoingMessages = new();
+        private readonly ConcurrentQueue<Command> _outgoingMessages;
 
-        public FChatStreamReader(ClientWebSocket webSocket, State state)
+        public FChatStreamReader(ClientWebSocket webSocket, State state, ConcurrentQueue<Command> outgoingMessages, MessageHandler messageHandler)
         {
             _webSocket = webSocket;
-            _messageHandler = new MessageHandler(state);
+            _messageHandler = messageHandler;
             _state = state;
+            _outgoingMessages = outgoingMessages;
         }
 
         private async Task SendOutgoingMessages(CancellationToken token = default)
         {
             while (!token.IsCancellationRequested)
             {
-                if (_outgoingMessages.TryDequeue(out var message))
+                if (_outgoingMessages.TryDequeue(out var command))
                 {
+                    var message = command.MakeFChatCommand();
                     var sendBytes = Encoding.UTF8.GetBytes(message);
                     var segment = new ArraySegment<byte>(sendBytes);
                     await _webSocket.SendAsync(segment, WebSocketMessageType.Text, true, token);
@@ -61,7 +64,7 @@ namespace DarkestBot.Protocol
             }
         }
 
-        public void EnqueueMessage(string message)
+        public void EnqueueMessage(Command message)
         {
             _outgoingMessages.Enqueue(message);
         }

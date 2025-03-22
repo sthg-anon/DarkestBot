@@ -24,6 +24,7 @@ using DarkestBot.Protocol;
 using DarkestBot.Protocol.Commands;
 using DarkestBot.Protocol.Commands.Payloads;
 using Serilog;
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 
 namespace DarkestBot
@@ -87,7 +88,9 @@ namespace DarkestBot
             await ws.ConnectAsync(serverUri, token);
             Log.Information("Connected!");
 
-            var streamReader = new FChatStreamReader(ws, state);
+            var outgoingMessageQueue = new ConcurrentQueue<Command>();
+            var messageHandler = new MessageHandler(state, outgoingMessageQueue);
+            var streamReader = new FChatStreamReader(ws, state, outgoingMessageQueue, messageHandler);
 
             var identifyCommand = CommandFactory.Identify(
                 method: "ticket",
@@ -97,12 +100,12 @@ namespace DarkestBot
                 clientName: "DarkestBot",
                 clientVersion: "0.0.1");
 
-            streamReader.EnqueueMessage(identifyCommand.MakeFChatCommand());
+            streamReader.EnqueueMessage(identifyCommand);
 
             if (!string.IsNullOrEmpty(state.RoomId))
             {
                 var joinCommand = CommandFactory.JoinChannel(state.RoomId);
-                streamReader.EnqueueMessage(joinCommand.MakeFChatCommand());
+                streamReader.EnqueueMessage(joinCommand);
             }
 
             await streamReader.ReadStreamAsync(token);
