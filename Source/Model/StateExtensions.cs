@@ -17,17 +17,30 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
-
-using System.Text.Json.Serialization;
+using Serilog;
 
 namespace DarkestBot.Model
 {
-    internal sealed class Character
+    internal static class StateExtensions
     {
-        [JsonPropertyName("IsOp")]
-        public bool? IsOp { get; set; }
+        public static async Task AddPotionAsync(this State state, string characterName, Potion potion, CancellationToken token = default)
+        {
+            if (potion.Name == null || potion.Eicon == null || potion.Description == null)
+            {
+                Log.Error("Potion is missing data!");
+                return;
+            }
 
-        [JsonPropertyName("Potions")]
-        public List<Potion>? Potions { get; set; }
+            if (!state.Characters.TryGetValue(characterName, out var character))
+            {
+                character = new Character();
+                state.Characters.Add(characterName, character);
+            }
+
+            character.Potions ??= [];
+            character.Potions.Add(potion);
+
+            await state.SaveAsync(token);
+        }
     }
 }

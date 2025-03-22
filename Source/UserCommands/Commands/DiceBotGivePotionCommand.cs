@@ -18,17 +18,18 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+using DarkestBot.Model;
 using Serilog;
 
 namespace DarkestBot.UserCommands.Commands
 {
-    internal sealed class DiceBotGivePotionCommand(Queue<string> potionBuyers) : IUserCommand
+    internal sealed class DiceBotGivePotionCommand(Queue<string> potionBuyers, State state) : IAsyncUserCommand
     {
         private const string ExpectedPotionGiver = "Dice Bot";
 
         public UserCommandMode AllowedModes => UserCommandMode.Public;
 
-        public void TryExecute(string commandSender, string message, IChatResponder responder)
+        public async Task TryExecuteAsync(string commandSender, string message, IChatResponder responder, CancellationToken token = default)
         {
             if (!string.Equals(commandSender, ExpectedPotionGiver, StringComparison.Ordinal))
             {
@@ -44,6 +45,7 @@ namespace DarkestBot.UserCommands.Commands
             {
                 Log.Information("{buyer} bought a potion!", potionBuyer);
                 responder.SendChatMessage($"[user]{potionBuyer}[/user] has received: [b]{potion.Name}[/b]");
+                await state.AddPotionAsync(potionBuyer, potion, token);
                 return;
             }
 

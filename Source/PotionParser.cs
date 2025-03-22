@@ -18,6 +18,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+using DarkestBot.Model;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
@@ -28,9 +29,7 @@ namespace DarkestBot
         [GeneratedRegex(@"\[b\]([^[]+)\[\/b\].*?\[eicon\]([^[]+)\[\/eicon\].*?\[sub\]([^[]+?)\[\/sub\]", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
         private static partial Regex PotionMatcher();
 
-        public record ParsedPotion(string Name, string Eicon, string Descritpion);
-
-        public static bool TryParse(string message, [NotNullWhen(true)] out ParsedPotion? potion)
+        public static bool TryParse(string message, [NotNullWhen(true)] out Potion? potion)
         {
             var match = PotionMatcher().Match(message);
             if (!match.Success)
@@ -40,7 +39,12 @@ namespace DarkestBot
             }
 
             var groups = match.Groups;
-            potion = new ParsedPotion(groups[1].Value, groups[2].Value, groups[3].Value);
+            potion = new Potion
+            {
+                Name = groups[1].Value,
+                Eicon = groups[2].Value,
+                Description = groups[3].Value
+            };
             return true;
         }
     }

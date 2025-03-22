@@ -43,6 +43,7 @@ namespace DarkestBot.Model
         [JsonIgnore]
         public double ChannelMessageDelay { get; set; } = 0.0;
 
+        [JsonPropertyName("Characters")]
         public Dictionary<string, Character> Characters { get; set; } = [];
 
         public async Task SaveAsync(CancellationToken token = default)

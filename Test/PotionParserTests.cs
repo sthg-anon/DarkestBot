@@ -62,7 +62,7 @@ namespace DarkestBotTests
 
             Assert.Equal("Skin Color", potion.Name);
             Assert.Equal("potion11", potion.Eicon);
-            Assert.Equal("Changes the color of your skin to dark red.", potion.Descritpion);
+            Assert.Equal("Changes the color of your skin to dark red.", potion.Description);
         }
     }
 }

@@ -18,16 +18,12 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using System.Text.Json.Serialization;
-
-namespace DarkestBot.Model
+namespace DarkestBot.UserCommands
 {
-    internal sealed class Character
+    internal interface IAsyncUserCommand
     {
-        [JsonPropertyName("IsOp")]
-        public bool? IsOp { get; set; }
+        public Task TryExecuteAsync(string commandSender, string message, IChatResponder responder, CancellationToken token = default);
 
-        [JsonPropertyName("Potions")]
-        public List<Potion>? Potions { get; set; }
+        public UserCommandMode AllowedModes { get; }
     }
 }

@@ -20,6 +20,7 @@
 
 using DarkestBot.Model;
 using DarkestBot.Protocol;
+using DarkestBot.Protocol.Commands;
 using DarkestBot.UserCommands.Commands;
 using System.Text.Json;
 
@@ -33,6 +34,7 @@ namespace DarkestBot.UserCommands
 
         private readonly UserCommandMode _mode;
         private readonly IUserCommand[] _commands;
+        private readonly IAsyncUserCommand[] _asyncCommands;
 
         public UserCommandHandler(JsonSerializerOptions jsonOptions, State state, ICommandSender commandSender, UserCommandMode mode)
         {
@@ -40,9 +42,11 @@ namespace DarkestBot.UserCommands
             _commands = [
                 new DataDumpCommand(jsonOptions, state),
                 new BuyPotionCommand(_potionBuyers),
-                new DiceBotGivePotionCommand(_potionBuyers),
+                new DiceBotGivePotionCommand(_potionBuyers, state),
                 new DiceBotRefusePotionCommand(_potionBuyers)
             ];
+
+            _asyncCommands = [];
         }
 
         public async Task HandleCommandAsync(string character, string message, IChatResponder responder, CancellationToken token = default)
@@ -52,6 +56,14 @@ namespace DarkestBot.UserCommands
                 if ((command.AllowedModes & _mode) == _mode)
                 {
                     command.TryExecute(character, message, responder);
+                }
+            }
+
+            foreach (var asyncCommand in _asyncCommands)
+            {
+                if ((asyncCommand.AllowedModes & _mode) == _mode)
+                {
+                    await asyncCommand.TryExecuteAsync(character, message, responder, token);
                 }
             }
         }

@@ -22,12 +22,15 @@ using System.Text.Json.Serialization;
 
 namespace DarkestBot.Model
 {
-    internal sealed class Character
+    internal sealed class Potion
     {
-        [JsonPropertyName("IsOp")]
-        public bool? IsOp { get; set; }
+        [JsonPropertyName("Name")]
+        public string? Name { get; set; }
 
-        [JsonPropertyName("Potions")]
-        public List<Potion>? Potions { get; set; }
+        [JsonPropertyName("Eicon")]
+        public string? Eicon { get; set; }
+
+        [JsonPropertyName("Description")]
+        public string? Description { get; set; }
     }
 }
