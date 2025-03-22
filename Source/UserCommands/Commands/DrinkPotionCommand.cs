@@ -35,17 +35,19 @@ namespace DarkestBot.UserCommands.Commands
                 return;
             }
 
-            string[] parts = message.Split(' ');
-            if (parts.Length < 2)
+            int firstSpaceIndex = message.IndexOf(' ');
+            if (firstSpaceIndex < 0)
             {
                 responder.SendChatMessage("You need to specify a potion name! Use !listpotions to see what potions you have, then drink it with !drinkpotion [b]<name>[/b].");
                 return;
             }
 
+            var potionName = message[(firstSpaceIndex + 1)..];
+
             Potion? potion = null;
             await stateManager.ModifyAsync(s =>
             {
-                potion = s.RemovePotion(commandSender, parts[1]);
+                potion = s.RemovePotion(commandSender, potionName);
             }, token);
 
             if (potion == null)

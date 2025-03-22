@@ -65,7 +65,7 @@ namespace DarkestBot.Model
         {
             try
             {
-                var json = JsonSerializer.Serialize(this);
+                var json = JsonSerializer.Serialize(State);
                 await File.WriteAllTextAsync(StateFilePath, json, token);
             }
             catch (OperationCanceledException)
