@@ -24,7 +24,7 @@ using DarkestBot.Protocol.Commands;
 using Serilog;
 using System.Text.Json;
 
-namespace DarkestBot
+namespace DarkestBot.UserCommands
 {
     internal sealed class BotCommandHandler(JsonSerializerOptions jsonOptions, State state, CommandMode mode)
     {
@@ -67,7 +67,7 @@ namespace DarkestBot
 
         private Task<Command?> HandleDataDumpAsync(string character)
         {
-            if(state.Characters.TryGetValue(character, out var data))
+            if (state.Characters.TryGetValue(character, out var data))
             {
                 var dump = JsonSerializer.Serialize(data, jsonOptions);
                 return Task.FromResult((Command?)CommandFactory.ChannelMessage(state.RoomId, dump));
@@ -98,7 +98,7 @@ namespace DarkestBot
         private void HandlePotionPurchaseFail(string? character)
         {
             // if the character is null or NOT the dice bot (potion giver), return.
-            if(character == null || !character.Equals(ExpectedPotionGiver, StringComparison.Ordinal))
+            if (character == null || !character.Equals(ExpectedPotionGiver, StringComparison.Ordinal))
             {
                 return;
             }
