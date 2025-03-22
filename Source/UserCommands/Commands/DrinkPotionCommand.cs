@@ -19,41 +19,42 @@
  */
 
 using DarkestBot.Model;
-using Serilog;
 
 namespace DarkestBot.UserCommands.Commands
 {
-    internal sealed class DiceBotGivePotionCommand(Queue<string> potionBuyers, StateManager stateManager) : IAsyncUserCommand
+    internal sealed class DrinkPotionCommand(StateManager stateManager) : IAsyncUserCommand
     {
-        private const string ExpectedPotionGiver = "Dice Bot";
+        private const string CommandPrefix = "!drinkpotion";
 
         public UserCommandMode AllowedModes => UserCommandMode.Public;
 
         public async Task TryExecuteAsync(string commandSender, string message, IChatResponder responder, CancellationToken token = default)
         {
-            if (!string.Equals(commandSender, ExpectedPotionGiver, StringComparison.Ordinal))
+            if (!message.Equals(CommandPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            if (!PotionParser.TryParse(message, out var potion))
+            string[] parts = message.Split(' ');
+            if (parts.Length < 2)
             {
+                responder.SendChatMessage("You need to specify a potion name! Use !listpotions to see what potions you have, then drink it with !drinkpotion [b]<name>[/b].");
                 return;
             }
 
-            if (potionBuyers.TryDequeue(out var potionBuyer))
+            Potion? potion = null;
+            await stateManager.ModifyAsync(s =>
             {
-                Log.Information("{buyer} bought a potion!", potionBuyer);
-                responder.SendChatMessage($"[user]{potionBuyer}[/user] has received: [b]{potion.Name}[/b] potion.");
-                await stateManager.ModifyAsync(state =>
-                {
-                    state.AddPotion(potionBuyer, potion);
-                }, token);
+                potion = s.RemovePotion(commandSender, parts[1]);
+            }, token);
+
+            if (potion == null)
+            {
+                responder.SendChatMessage($"[user]{commandSender}[/user] does not have that potion.");
                 return;
             }
 
-            Log.Warning("I don't know who bought a potion!");
-            responder.SendChatMessage($"I don't know who bought that potion! I've lost track of the Dice Bot commands...");
+            responder.SendChatMessage($"[user]{commandSender}[/user] drinks their [eicon]{potion.Eicon}[/eicon] [b]{potion.Name}[/b] potion!");
         }
     }
 }

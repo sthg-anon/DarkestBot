@@ -31,7 +31,7 @@ namespace DarkestBot.UserCommands.Commands
 
         public void TryExecute(string commandSender, string message, IChatResponder responder)
         {
-            if (!message.StartsWith(CommandPrefix, StringComparison.OrdinalIgnoreCase))
+            if (!message.Equals(CommandPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }

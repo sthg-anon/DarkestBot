@@ -42,11 +42,13 @@ namespace DarkestBot.UserCommands
             _commands = [
                 new DataDumpCommand(jsonOptions, stateManager),
                 new BuyPotionCommand(_potionBuyers),
-                new DiceBotRefusePotionCommand(_potionBuyers)
+                new DiceBotRefusePotionCommand(_potionBuyers),
+                new ListPotionsCommand(stateManager)
             ];
 
             _asyncCommands = [
-                new DiceBotGivePotionCommand(_potionBuyers, stateManager)
+                new DiceBotGivePotionCommand(_potionBuyers, stateManager),
+                new DrinkPotionCommand(stateManager)
             ];
         }
 

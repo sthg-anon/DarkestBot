@@ -40,5 +40,27 @@ namespace DarkestBot.Model
             character.Potions ??= [];
             character.Potions.Add(potion);
         }
+
+        public static Potion? RemovePotion(this State state, string characterName, string potionName)
+        {
+            if (!state.Characters.TryGetValue(characterName, out var character))
+            {
+                return null;
+            }
+
+            if (character.Potions == null)
+            {
+                return null;
+            }
+
+            var potion = character.Potions.Find(p => p.Name?.Equals(potionName, StringComparison.InvariantCultureIgnoreCase) ?? false);
+            if (potion == null)
+            {
+                return null;
+            }
+
+            character.Potions.Remove(potion);
+            return potion;
+        }
     }
 }
