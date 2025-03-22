@@ -18,16 +18,16 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+using DarkestBot.Model;
 using DarkestBot.Protocol;
-using System.Threading.Channels;
 
 namespace DarkestBot.UserCommands
 {
-    internal sealed class PrivateChatResponser(ICommandSender commandSender, string character) : IChatResponder
+    internal sealed class PrivateChatResponser(ICommandSender commandSender, State state, string character) : IChatResponder
     {
         public void SendChatMessage(string message)
         {
-            commandSender.SendCommand(CommandFactory.PrivateMessage(character, message));
+            commandSender.SendCommand(CommandFactory.PrivateMessage(state, character, message));
         }
     }
 }

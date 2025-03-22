@@ -20,16 +20,18 @@
 
 using DarkestBot.Protocol.Commands.Payloads;
 using DarkestBot.Protocol.Commands;
+using DarkestBot.Model;
+using System.Text;
 
 namespace DarkestBot.Protocol
 {
     internal static class CommandFactory
     {
-        public static PayloadCommand<ChannelMessagePayload> ChannelMessage(string? channel, string? message) =>
+        public static PayloadCommand<ChannelMessagePayload> ChannelMessage(State state, string channel, string message) =>
             new(MessageType.MSG, new ChannelMessagePayload
             {
                 Channel = channel,
-                Message = message
+                Message = TruncateUtf8Safe(state.MaxChatByteCount, message)
             });
         
         public static PayloadCommand<JoinChannelPayload> JoinChannel(string? channel) =>
@@ -57,11 +59,22 @@ namespace DarkestBot.Protocol
 
         public static Command Ping() => new(MessageType.PIN);
 
-        public static PayloadCommand<PrivateMessagePayload> PrivateMessage(string character, string message) =>
+        public static PayloadCommand<PrivateMessagePayload> PrivateMessage(State state, string character, string message) =>
             new(MessageType.PRI, new PrivateMessagePayload
             {
                 Recipient = character,
-                Message = message
+                Message = TruncateUtf8Safe(state.MaxChatByteCount, message)
             });
+
+        internal static string TruncateUtf8Safe(int maxByteCount, string message)
+        {
+            var encoder = Encoding.UTF8.GetEncoder();
+            var charArray = message.ToCharArray();
+            var byteBuffer = new byte[maxByteCount];
+
+            encoder.Convert(charArray, 0, charArray.Length, byteBuffer, 0, maxByteCount, false, out int charsUsed, out _, out _);
+
+            return new string(charArray, 0, charsUsed);
+        }
     }
 }

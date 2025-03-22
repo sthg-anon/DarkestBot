@@ -49,7 +49,7 @@ namespace DarkestBot.Protocol.MessageHandlers
                 return;
             }
 
-            var responder = new PrivateChatResponser(commandSender, parsedPayload.Character);
+            var responder = new PrivateChatResponser(commandSender, state, parsedPayload.Character);
             await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, responder, token);
         }
     }
