@@ -60,10 +60,10 @@ namespace DarkestBot.UserCommands.Commands
                     Log.Warning("{character}'s potion has missing data!", commandSender);
                 }
 
-                sb.Append("[eicon]").Append(potion.Eicon).Append("[/eicon] [b]").Append(potion.Name).Append("[/b]: ").Append(potion.Description);
+                sb.Append("[eicon]").Append(potion.Eicon).Append("[/eicon] [b]").Append(potion.Name).Append("[/b]: ").Append(potion.Description).Append('\n');
             }
 
-            responder.SendChatMessage(sb.ToString());
+            responder.SendChatMessage(sb.ToString().TrimEnd('\n'));
         }
     }
 }
