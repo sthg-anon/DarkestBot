@@ -42,7 +42,7 @@ namespace DarkestBot.UserCommands.Commands
 
             if (potionBuyers.TryDequeue(out var potionBuyer))
             {
-                Log.Information("{buyer} bought a potion!");
+                Log.Information("{buyer} bought a potion!", potionBuyer);
                 responder.SendChatMessage($"[user]{potionBuyer}[/user] has received: [b]{potion.Name}[/b]");
                 return;
             }

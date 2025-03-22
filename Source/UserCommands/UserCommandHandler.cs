@@ -21,7 +21,6 @@
 using DarkestBot.Model;
 using DarkestBot.Protocol;
 using DarkestBot.UserCommands.Commands;
-using Serilog;
 using System.Text.Json;
 
 namespace DarkestBot.UserCommands
