@@ -18,28 +18,41 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using DarkestBot.Model;
-using DarkestBot.Protocol.Commands.Payloads;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-namespace DarkestBot.Protocol.MessageHandlers
+namespace DarkestBot.Protocol
 {
-    internal sealed class ChannelInviteHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, State state) : IAsyncMessageHandler
+    internal static class PayloadParser
     {
-        public async Task HandleMessageAsync(string? payload, CancellationToken token = default)
+        public static bool TryParsePayload<T>(JsonSerializerOptions jsonOptions, string? input, [NotNullWhen(true)] out T? payload) where T : class
         {
-            if (!PayloadParser.TryParsePayload<ChannelInvitePayload>(jsonOptions, payload, out var parsedPayload))
+            payload = null;
+
+            if (input == null)
             {
-                return;
+                Log.Error("{name} payload is empty.", typeof(T).Name);
+                return false;
             }
 
-            Log.Information("Received a channel invite to {channelName} by {character}", parsedPayload.Title, parsedPayload.Sender);
+            try
+            {
+                payload = JsonSerializer.Deserialize<T>(input, jsonOptions);
+            }
+            catch (JsonException ex)
+            {
+                Log.Error(ex, "Unable to parse {name} payload.", typeof(T).Name);
+                return false;
+            }
 
-            state.RoomId = parsedPayload.Name;
-            await state.SaveAsync(token);
+            if (payload == null)
+            {
+                Log.Error("{name} payload parsed to null.", typeof(T).Name);
+                return false;
+            }
 
-            commandSender.SendCommand(CommandFactory.JoinChannel(parsedPayload.Name));
+            return true;
         }
     }
 }

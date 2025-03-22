@@ -32,26 +32,8 @@ namespace DarkestBot.Protocol.MessageHandlers
 
         public void HandleMessage(string? payload)
         {
-            if (payload == null)
+            if (!PayloadParser.TryParsePayload<VarPayload>(jsonOptions, payload, out var parsedPayload))
             {
-                Log.Error("Received a var command with an empty payload.");
-                return;
-            }
-
-            VarPayload? parsedPayload;
-            try
-            {
-                parsedPayload = JsonSerializer.Deserialize<VarPayload>(payload, jsonOptions);
-            }
-            catch (JsonException ex)
-            {
-                Log.Error(ex, "Unable to parse var payload.");
-                return;
-            }
-
-            if (parsedPayload == null)
-            {
-                Log.Error("Var payload parsed to null.");
                 return;
             }
 

@@ -32,26 +32,8 @@ namespace DarkestBot.Protocol.MessageHandlers
 
         public async Task HandleMessageAsync(string? payload, CancellationToken token = default)
         {
-            if (payload == null)
+            if (!PayloadParser.TryParsePayload<ChannelMessagePayload>(jsonOptions, payload, out var parsedPayload))
             {
-                Log.Error("Received a channel message with an empty payload.");
-                return;
-            }
-
-            ChannelMessagePayload? parsedPayload;
-            try
-            {
-                parsedPayload = JsonSerializer.Deserialize<ChannelMessagePayload>(payload, jsonOptions);
-            }
-            catch (JsonException ex)
-            {
-                Log.Error(ex, "Unable to parse channel message payload.");
-                return;
-            }
-
-            if (parsedPayload == null)
-            {
-                Log.Error("Channel message payload parsed to null.");
                 return;
             }
 
