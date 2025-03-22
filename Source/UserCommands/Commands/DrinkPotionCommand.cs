@@ -30,7 +30,7 @@ namespace DarkestBot.UserCommands.Commands
 
         public async Task TryExecuteAsync(string commandSender, string message, IChatResponder responder, CancellationToken token = default)
         {
-            if (!message.Equals(CommandPrefix, StringComparison.OrdinalIgnoreCase))
+            if (!message.StartsWith(CommandPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
