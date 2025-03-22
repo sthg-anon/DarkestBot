@@ -54,7 +54,6 @@ namespace DarkestBot.Protocol
             MessageType.IGN, // ignore list
             MessageType.ADL, // global op list
             MessageType.TPN, // typing status
-            MessageType.PRI, // PRIVATE MESSAGES
             MessageType.JCH, // user joined channel
         ];
 
@@ -65,7 +64,8 @@ namespace DarkestBot.Protocol
                 { MessageType.PIN, new PingMessageHandler() },
                 { MessageType.CIU, new ChannelInviteHandler(_jsonOptions, state) },
                 { MessageType.VAR, new VarMessageHandler(_jsonOptions, state) },
-                { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, state) }
+                { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, state) },
+                { MessageType.PRI, new PrivateMessageHandler(_jsonOptions, state) }
             };
         }
 

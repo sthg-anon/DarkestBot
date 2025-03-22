@@ -26,48 +26,32 @@ using System.Text.Json;
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal sealed class ChannelMessageHandler(JsonSerializerOptions jsonOptions, State state) : IMessageHandler
+    internal sealed class PrivateMessageHandler(JsonSerializerOptions jsonOptions, State state) : IMessageHandler
     {
-        private readonly BotCommandHandler _commandHandler = new(jsonOptions, state, CommandMode.Public);
+        private readonly BotCommandHandler _commandHandler = new(jsonOptions, state, CommandMode.Private);
 
         public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
         {
             if (payload == null)
             {
-                Log.Error("Received a channel message with an empty payload.");
+                Log.Error("Received a private message with an empty payload.");
                 return Task.FromResult<Command?>(null);
             }
 
-            ChannelMessagePayload? parsedPayload;
+            PrivateMessagePayload? parsedPayload;
             try
             {
-                parsedPayload = JsonSerializer.Deserialize<ChannelMessagePayload>(payload, jsonOptions);
+                parsedPayload = JsonSerializer.Deserialize<PrivateMessagePayload>(payload, jsonOptions);
             }
             catch (JsonException ex)
             {
-                Log.Error(ex, "Unable to parse channel message payload.");
+                Log.Error(ex, "Unable to parse private message payload.");
                 return Task.FromResult<Command?>(null);
             }
 
             if (parsedPayload == null)
             {
-                Log.Error("Channel message payload parsed to null.");
-                return Task.FromResult<Command?>(null);
-            }
-
-            if (!parsedPayload.Channel?.Equals(state.RoomId) ?? false)
-            {
-                Log.Warning(
-                    "Received a message from a strange channel ({channel}) from {sender}: {message}",
-                    parsedPayload.Channel,
-                    parsedPayload.Character,
-                    parsedPayload.Message);
-                return Task.FromResult<Command?>(null);
-            }
-
-            if (string.IsNullOrEmpty(parsedPayload.Channel))
-            {
-                Log.Warning("Received a message from a null channel: {message}", payload);
+                Log.Error("Private message payload parsed to null.");
                 return Task.FromResult<Command?>(null);
             }
 
