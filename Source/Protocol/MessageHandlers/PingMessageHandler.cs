@@ -18,15 +18,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-using DarkestBot.Protocol.Commands;
-
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal class PingMessageHandler() : IMessageHandler
+    internal class PingMessageHandler(ICommandSender commandSender) : IMessageHandler
     {
-        public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
+        public void HandleMessage(string? payload)
         {
-            return Task.FromResult((Command?)CommandFactory.Ping());
+            commandSender.SendCommand(CommandFactory.Ping());
         }
     }
 }

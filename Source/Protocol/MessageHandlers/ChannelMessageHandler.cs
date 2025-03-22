@@ -19,7 +19,6 @@
  */
 
 using DarkestBot.Model;
-using DarkestBot.Protocol.Commands;
 using DarkestBot.Protocol.Commands.Payloads;
 using DarkestBot.UserCommands;
 using Serilog;
@@ -27,16 +26,16 @@ using System.Text.Json;
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal sealed class ChannelMessageHandler(JsonSerializerOptions jsonOptions, State state) : IMessageHandler
+    internal sealed class ChannelMessageHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, State state) : IAsyncMessageHandler
     {
-        private readonly UserCommandHandler _commandHandler = new(jsonOptions, state, UserCommandMode.Public);
+        private readonly UserCommandHandler _commandHandler = new(jsonOptions, state, commandSender, UserCommandMode.Public);
 
-        public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
+        public async Task HandleMessageAsync(string? payload, CancellationToken token = default)
         {
             if (payload == null)
             {
                 Log.Error("Received a channel message with an empty payload.");
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             ChannelMessagePayload? parsedPayload;
@@ -47,13 +46,13 @@ namespace DarkestBot.Protocol.MessageHandlers
             catch (JsonException ex)
             {
                 Log.Error(ex, "Unable to parse channel message payload.");
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (parsedPayload == null)
             {
                 Log.Error("Channel message payload parsed to null.");
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (!parsedPayload.Channel?.Equals(state.RoomId) ?? false)
@@ -63,28 +62,28 @@ namespace DarkestBot.Protocol.MessageHandlers
                     parsedPayload.Channel,
                     parsedPayload.Character,
                     parsedPayload.Message);
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (string.IsNullOrEmpty(parsedPayload.Channel))
             {
                 Log.Warning("Received a message from a null channel: {message}", payload);
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (string.IsNullOrEmpty(parsedPayload.Message))
             {
                 Log.Warning("Received a null channel message: {message}", payload);
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (string.IsNullOrEmpty(parsedPayload.Character))
             {
                 Log.Warning("Received a channel message from a null character: {message}", payload);
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
-            return _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, token);
+            await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, token);
         }
     }
 }

@@ -88,9 +88,9 @@ namespace DarkestBot
             await ws.ConnectAsync(serverUri, token);
             Log.Information("Connected!");
 
-            var outgoingMessageQueue = new ConcurrentQueue<Command>();
-            var messageHandler = new MessageHandler(state, outgoingMessageQueue);
-            var streamReader = new FChatStreamReader(ws, state, outgoingMessageQueue, messageHandler);
+            var outgoingCommandQueue = new ConcurrentCommandQueue();
+            var messageHandler = new MessageHandler(state, outgoingCommandQueue);
+            var streamReader = new FChatStreamReader(ws, state, outgoingCommandQueue, messageHandler);
 
             var identifyCommand = CommandFactory.Identify(
                 method: "ticket",
@@ -100,12 +100,12 @@ namespace DarkestBot
                 clientName: "DarkestBot",
                 clientVersion: "0.0.1");
 
-            streamReader.EnqueueMessage(identifyCommand);
+            outgoingCommandQueue.SendCommand(identifyCommand);
 
             if (!string.IsNullOrEmpty(state.RoomId))
             {
                 var joinCommand = CommandFactory.JoinChannel(state.RoomId);
-                streamReader.EnqueueMessage(joinCommand);
+                outgoingCommandQueue.SendCommand(joinCommand);
             }
 
             await streamReader.ReadStreamAsync(token);

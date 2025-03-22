@@ -20,8 +20,8 @@
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal interface IMessageHandler
+    internal interface IAsyncMessageHandler
     {
-        void HandleMessage(string? payload);
+        Task HandleMessageAsync(string? payload, CancellationToken token = default);
     }
 }

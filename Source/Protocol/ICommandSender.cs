@@ -18,10 +18,12 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-namespace DarkestBot.Protocol.MessageHandlers
+using DarkestBot.Protocol.Commands;
+
+namespace DarkestBot.Protocol
 {
-    internal interface IMessageHandler
+    internal interface ICommandSender
     {
-        void HandleMessage(string? payload);
+        void SendCommand(Command command);
     }
 }

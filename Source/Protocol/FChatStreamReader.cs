@@ -19,11 +19,10 @@
  */
 
 using DarkestBot.Model;
-using DarkestBot.Protocol.Commands;
 using Serilog;
-using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
+using System.Threading.Channels;
 
 namespace DarkestBot.Protocol
 {
@@ -36,22 +35,21 @@ namespace DarkestBot.Protocol
         private readonly ClientWebSocket _webSocket;
         private readonly MessageHandler _messageHandler;
         private readonly State _state;
+        private readonly ICommandQueue _outgoingCommandQueue;
 
-        private readonly ConcurrentQueue<Command> _outgoingMessages;
-
-        public FChatStreamReader(ClientWebSocket webSocket, State state, ConcurrentQueue<Command> outgoingMessages, MessageHandler messageHandler)
+        public FChatStreamReader(ClientWebSocket webSocket, State state, ICommandQueue outgoingMessages, MessageHandler messageHandler)
         {
             _webSocket = webSocket;
             _messageHandler = messageHandler;
             _state = state;
-            _outgoingMessages = outgoingMessages;
+            _outgoingCommandQueue = outgoingMessages;
         }
 
         private async Task SendOutgoingMessages(CancellationToken token = default)
         {
             while (!token.IsCancellationRequested)
             {
-                if (_outgoingMessages.TryDequeue(out var command))
+                if (_outgoingCommandQueue.TryGetCommand(out var command))
                 {
                     var message = command.MakeFChatCommand();
                     var sendBytes = Encoding.UTF8.GetBytes(message);
@@ -62,11 +60,6 @@ namespace DarkestBot.Protocol
                 var delayLength = Math.Max(_state.ChannelMessageDelay, MinSecondsBetweenSend) + DelayPadding;
                 await Task.Delay(TimeSpan.FromSeconds(delayLength), token);
             }
-        }
-
-        public void EnqueueMessage(Command message)
-        {
-            _outgoingMessages.Enqueue(message);
         }
 
         public async Task ReadStreamAsync(CancellationToken token = default)
@@ -97,10 +90,18 @@ namespace DarkestBot.Protocol
                 }
 
                 var message = Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
-                var messageToSend = await _messageHandler.HandleMessageAsync(message, token);
-                if (messageToSend != null)
+
+                try
                 {
-                    _outgoingMessages.Enqueue(messageToSend);
+                    await _messageHandler.HandleMessageAsync(message, token);
+                }
+                catch (TaskCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error while handling f-chat command!");
                 }
             }
 

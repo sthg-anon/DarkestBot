@@ -18,10 +18,24 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-namespace DarkestBot.Protocol.MessageHandlers
+using DarkestBot.Protocol.Commands;
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
+
+namespace DarkestBot.Protocol
 {
-    internal interface IMessageHandler
+    internal sealed class ConcurrentCommandQueue : ICommandQueue, ICommandSender
     {
-        void HandleMessage(string? payload);
+        private readonly ConcurrentQueue<Command> _commandQueue = new();
+
+        public void SendCommand(Command command)
+        {
+            _commandQueue.Enqueue(command);
+        }
+
+        public bool TryGetCommand([NotNullWhen(true)] out Command command)
+        {
+            return _commandQueue.TryDequeue(out command!);
+        }
     }
 }

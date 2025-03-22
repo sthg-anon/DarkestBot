@@ -18,10 +18,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-namespace DarkestBot.Protocol.MessageHandlers
+using DarkestBot.Protocol.Commands;
+using System.Diagnostics.CodeAnalysis;
+
+namespace DarkestBot.Protocol
 {
-    internal interface IMessageHandler
+    internal interface ICommandQueue
     {
-        void HandleMessage(string? payload);
+        bool TryGetCommand([NotNullWhen(true)] out Command command);
     }
 }

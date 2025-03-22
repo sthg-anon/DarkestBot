@@ -22,7 +22,6 @@ using DarkestBot.Model;
 using DarkestBot.Protocol.Commands;
 using DarkestBot.Protocol.MessageHandlers;
 using Serilog;
-using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace DarkestBot.Protocol
@@ -38,7 +37,7 @@ namespace DarkestBot.Protocol
         };
 
         private readonly Dictionary<MessageType, IMessageHandler> _messageHandlers;
-        private readonly ConcurrentQueue<Command> _outgoingQueue;
+        private readonly Dictionary<MessageType, IAsyncMessageHandler> _asyncMessageHandlers;
 
         private readonly HashSet<MessageType> _ignoredMessages =
         [
@@ -59,26 +58,28 @@ namespace DarkestBot.Protocol
             MessageType.JCH, // user joined channel
         ];
 
-        public MessageHandler(State state, ConcurrentQueue<Command> outgoingQueue)
+        public MessageHandler(State state, ICommandSender commandSender)
         {
             _messageHandlers = new()
             {
-                { MessageType.PIN, new PingMessageHandler() },
-                { MessageType.CIU, new ChannelInviteHandler(_jsonOptions, state) },
-                { MessageType.VAR, new VarMessageHandler(_jsonOptions, state) },
-                { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, state) },
-                { MessageType.PRI, new PrivateMessageHandler(_jsonOptions, state) }
+                { MessageType.PIN, new PingMessageHandler(commandSender) },
+                { MessageType.VAR, new VarMessageHandler(_jsonOptions, state) }
             };
 
-            _outgoingQueue = outgoingQueue;
+            _asyncMessageHandlers = new()
+            {
+                { MessageType.CIU, new ChannelInviteHandler(_jsonOptions, commandSender, state) },
+                { MessageType.PRI, new PrivateMessageHandler(_jsonOptions, commandSender, state) },
+                { MessageType.MSG, new ChannelMessageHandler(_jsonOptions, commandSender, state) }
+            };
         }
 
-        public async Task<Command?> HandleMessageAsync(string message, CancellationToken token = default)
+        public async Task HandleMessageAsync(string message, CancellationToken token = default)
         {
             if (message.Length < MessageTypeLength)
             {
                 Log.Warning("Received a message from F-Chat that is too short: {message}", message);
-                return null;
+                return;
             }
 
             var messageType = MessageType.Get(message[..MessageTypeLength]);
@@ -86,32 +87,33 @@ namespace DarkestBot.Protocol
             if (messageType == null)
             {
                 Log.Information("Received unknown message (message type unknown): {message}", message);
-                return null;
-            }
-            else if (_messageHandlers.TryGetValue(messageType, out var handler))
-            {
-                string payload = string.Empty;
-                if (message.Length >= MinPayloadMessageLength)
-                {
-                    payload = message[MinPayloadMessageLength..];
-                }
-
-                var response = await handler.HandleMessageAsync(payload, token);
-                if (response == null)
-                {
-                    return null;
-                }
-
-                return response;
+                return;
             }
             else if (_ignoredMessages.Contains(messageType))
             {
-                return null;
+                return;
+            }
+
+            string payload = string.Empty;
+            if (message.Length >= MinPayloadMessageLength)
+            {
+                payload = message[MinPayloadMessageLength..];
+            }
+
+            if (_messageHandlers.TryGetValue(messageType, out var handler))
+            {
+                handler.HandleMessage(payload);
+                return;
+            }
+            else if (_asyncMessageHandlers.TryGetValue(messageType, out var asyncHandler))
+            {
+                await asyncHandler.HandleMessageAsync(payload, token);
+                return;
             }
             else
             {
                 Log.Information("Message was not handled or ignored: {message}", message);
-                return null;
+                return;
             }
         }
     }

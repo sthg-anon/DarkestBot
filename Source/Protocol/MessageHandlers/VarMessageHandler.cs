@@ -19,7 +19,6 @@
  */
 
 using DarkestBot.Model;
-using DarkestBot.Protocol.Commands;
 using DarkestBot.Protocol.Commands.Payloads;
 using Serilog;
 using System.Text.Json;
@@ -31,12 +30,12 @@ namespace DarkestBot.Protocol.MessageHandlers
         private const string ChatMaxVar = "chat_max";
         private const string MessageDelayVar = "msg_flood";
 
-        public Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
+        public void HandleMessage(string? payload)
         {
             if (payload == null)
             {
                 Log.Error("Received a var command with an empty payload.");
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             VarPayload? parsedPayload;
@@ -47,19 +46,19 @@ namespace DarkestBot.Protocol.MessageHandlers
             catch (JsonException ex)
             {
                 Log.Error(ex, "Unable to parse var payload.");
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (parsedPayload == null)
             {
                 Log.Error("Var payload parsed to null.");
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (string.IsNullOrEmpty(parsedPayload.Variable))
             {
                 Log.Error("Got a var command with a null variable name.");
-                return Task.FromResult<Command?>(null);
+                return;
             }
 
             if (parsedPayload.Variable.Equals(ChatMaxVar))
@@ -67,7 +66,7 @@ namespace DarkestBot.Protocol.MessageHandlers
                 if (parsedPayload.Value == null || !parsedPayload.Value.HasValue)
                 {
                     Log.Warning("Variable {varName} has a null value.", ChatMaxVar);
-                    return Task.FromResult<Command?>(null);
+                    return;
                 }
 
                 if (parsedPayload.Value.Value.TryGetInt32(out var maxChatBytes))
@@ -85,7 +84,7 @@ namespace DarkestBot.Protocol.MessageHandlers
                 if (parsedPayload.Value == null || !parsedPayload.Value.HasValue)
                 {
                     Log.Warning("Variable {varName} has a null value.", ChatMaxVar);
-                    return Task.FromResult<Command?>(null);
+                    return;
                 }
 
                 if (parsedPayload.Value.Value.TryGetDouble(out var messageDelaySeconds))
@@ -99,7 +98,7 @@ namespace DarkestBot.Protocol.MessageHandlers
                 }
             }
 
-            return Task.FromResult<Command?>(null);
+            return;
         }
     }
 }

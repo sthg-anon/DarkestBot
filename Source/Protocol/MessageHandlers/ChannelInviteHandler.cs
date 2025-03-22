@@ -19,21 +19,20 @@
  */
 
 using DarkestBot.Model;
-using DarkestBot.Protocol.Commands;
 using DarkestBot.Protocol.Commands.Payloads;
 using Serilog;
 using System.Text.Json;
 
 namespace DarkestBot.Protocol.MessageHandlers
 {
-    internal sealed class ChannelInviteHandler(JsonSerializerOptions jsonOptions, State state) : IMessageHandler
+    internal sealed class ChannelInviteHandler(JsonSerializerOptions jsonOptions, ICommandSender commandSender, State state) : IAsyncMessageHandler
     {
-        public async Task<Command?> HandleMessageAsync(string? payload, CancellationToken token = default)
+        public async Task HandleMessageAsync(string? payload, CancellationToken token = default)
         {
             if (payload == null)
             {
                 Log.Error("Received a channel invite command with an empty payload.");
-                return null;
+                return;
             }
 
             ChannelInvitePayload? parsedPayload;
@@ -44,13 +43,13 @@ namespace DarkestBot.Protocol.MessageHandlers
             catch (JsonException ex)
             {
                 Log.Error(ex, "Unable to parse channel invite payload.");
-                return null;
+                return;
             }
 
             if (parsedPayload == null)
             {
                 Log.Error("Channel invite payload parsed to null.");
-                return null;
+                return;
             }
 
             Log.Information("Received a channel invite to {channelName} by {character}", parsedPayload.Title, parsedPayload.Sender);
@@ -58,7 +57,7 @@ namespace DarkestBot.Protocol.MessageHandlers
             state.RoomId = parsedPayload.Name;
             await state.SaveAsync(token);
 
-            return CommandFactory.JoinChannel(parsedPayload.Name);
+            commandSender.SendCommand(CommandFactory.JoinChannel(parsedPayload.Name));
         }
     }
 }
