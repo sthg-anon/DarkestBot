@@ -56,5 +56,12 @@ namespace DarkestBot.Protocol
             });
 
         public static Command Ping() => new(MessageType.PIN);
+
+        public static PayloadCommand<PrivateMessagePayload> PrivateMessage(string character, string message) =>
+            new(MessageType.PRI, new PrivateMessagePayload
+            {
+                Recipient = character,
+                Message = message
+            });
     }
 }

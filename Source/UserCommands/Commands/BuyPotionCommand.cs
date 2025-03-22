@@ -18,13 +18,25 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-namespace DarkestBot.UserCommands
+using Serilog;
+
+namespace DarkestBot.UserCommands.Commands
 {
-    [Flags]
-    internal enum UserCommandMode
+    internal sealed class BuyPotionCommand(Queue<string> potionBuyers) : IUserCommand
     {
-        None = 0,
-        Public = 1,
-        Private = 2
+        private const string CommandPrefix = "!generatepotion";
+
+        public UserCommandMode AllowedModes => UserCommandMode.Public;
+
+        public void TryExecute(string commandSender, string message, IChatResponder responder)
+        {
+            if (!message.StartsWith(CommandPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            Log.Information("{character} wants to buy a potion!", commandSender);
+            potionBuyers.Enqueue(commandSender);
+        }
     }
 }

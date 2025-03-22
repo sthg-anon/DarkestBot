@@ -49,7 +49,8 @@ namespace DarkestBot.Protocol.MessageHandlers
                 return;
             }
 
-            await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, token);
+            var responder = new PrivateChatResponser(commandSender, parsedPayload.Character);
+            await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, responder, token);
         }
     }
 }

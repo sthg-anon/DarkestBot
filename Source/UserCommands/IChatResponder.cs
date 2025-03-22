@@ -20,11 +20,8 @@
 
 namespace DarkestBot.UserCommands
 {
-    [Flags]
-    internal enum UserCommandMode
+    public interface IChatResponder
     {
-        None = 0,
-        Public = 1,
-        Private = 2
+        public void SendChatMessage(string message);
     }
 }

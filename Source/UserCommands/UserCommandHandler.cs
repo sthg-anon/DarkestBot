@@ -20,97 +20,40 @@
 
 using DarkestBot.Model;
 using DarkestBot.Protocol;
+using DarkestBot.UserCommands.Commands;
 using Serilog;
 using System.Text.Json;
 
 namespace DarkestBot.UserCommands
 {
-    internal sealed class UserCommandHandler(JsonSerializerOptions jsonOptions, State state, ICommandSender commandSender, UserCommandMode mode)
+    internal sealed class UserCommandHandler
     {
-        private const string DataDumpCommand = "!datadump";
-        private const string GeneratePotionCommand = "!generatepotion";
-
-        private const string ExpectedPotionGiver = "Dice Bot";
-
         private const string PotionPurchaseFailMessageStart = "Failed: You could not afford to buy a potion for";
 
         private readonly Queue<string> _potionBuyers = new();
 
-        public async Task HandleCommandAsync(string character, string message, CancellationToken token = default)
+        private readonly UserCommandMode _mode;
+        private readonly IUserCommand[] _commands;
+
+        public UserCommandHandler(JsonSerializerOptions jsonOptions, State state, ICommandSender commandSender, UserCommandMode mode)
         {
-            if (mode == UserCommandMode.Private && message.StartsWith(DataDumpCommand, StringComparison.OrdinalIgnoreCase))
-            {
-                HandleDataDump(character);
-                return;
-            }
-
-            if (mode == UserCommandMode.Public && message.StartsWith(GeneratePotionCommand, StringComparison.OrdinalIgnoreCase))
-            {
-                Log.Information("{character} wants to buy a potion!", character);
-                _potionBuyers.Enqueue(character);
-                return;
-            }
-
-            if (mode == UserCommandMode.Public && PotionParser.TryParse(message, out var potion))
-            {
-                HandlePotion(potion, character);
-                return;
-            }
-
-            if (message.StartsWith(PotionPurchaseFailMessageStart, StringComparison.Ordinal))
-            {
-                HandlePotionPurchaseFail(character);
-                return;
-            }
+            _mode = mode;
+            _commands = [
+                new DataDumpCommand(jsonOptions, state),
+                new BuyPotionCommand(_potionBuyers),
+                new DiceBotGivePotionCommand(_potionBuyers),
+                new DiceBotRefusePotionCommand(_potionBuyers)
+            ];
         }
 
-        private void HandleDataDump(string character)
+        public async Task HandleCommandAsync(string character, string message, IChatResponder responder, CancellationToken token = default)
         {
-            if (state.Characters.TryGetValue(character, out var data))
+            foreach (var command in _commands)
             {
-                var dump = JsonSerializer.Serialize(data, jsonOptions);
-                commandSender.SendCommand(CommandFactory.ChannelMessage(state.RoomId, dump));
-            }
-            else
-            {
-                commandSender.SendCommand(CommandFactory.ChannelMessage(state.RoomId, $"No data found for [user]{character}[/user]"));
-            }
-        }
-
-        private void HandlePotion(PotionParser.ParsedPotion potion, string potionGiver)
-        {
-            if (!string.Equals(potionGiver, ExpectedPotionGiver, StringComparison.Ordinal))
-            {
-                commandSender.SendCommand(CommandFactory.ChannelMessage(state.RoomId, $"Nice try, [user]{potionGiver}[/user]!"));
-                return;
-            }
-
-            if (_potionBuyers.TryDequeue(out var potionBuyer))
-            {
-                Log.Information("{buyer} bought a potion!");
-                commandSender.SendCommand(CommandFactory.ChannelMessage(state.RoomId, $"[user]{potionBuyer}[/user] has received: [b]{potion.Name}[/b]"));
-                return;
-            }
-
-            Log.Warning("I don't know who bought a potion!");
-            commandSender.SendCommand(CommandFactory.ChannelMessage(state.RoomId, $"I don't know who bought that potion! I've lost track of the Dice Bot commands..."));
-        }
-
-        private void HandlePotionPurchaseFail(string? character)
-        {
-            // if the character is null or NOT the dice bot (potion giver), return.
-            if (character == null || !character.Equals(ExpectedPotionGiver, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            if (_potionBuyers.TryDequeue(out var potionBuyer))
-            {
-                Log.Information("{character} cannot afford a potion!", potionBuyer);
-            }
-            else
-            {
-                Log.Warning("I don't know who can't afford a potion!");
+                if ((command.AllowedModes & _mode) == _mode)
+                {
+                    command.TryExecute(character, message, responder);
+                }
             }
         }
     }

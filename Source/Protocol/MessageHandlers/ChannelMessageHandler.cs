@@ -65,7 +65,8 @@ namespace DarkestBot.Protocol.MessageHandlers
                 return;
             }
 
-            await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, token);
+            var responder = new ChannelChatResponder(commandSender, parsedPayload.Channel);
+            await _commandHandler.HandleCommandAsync(parsedPayload.Character, parsedPayload.Message, responder, token);
         }
     }
 }

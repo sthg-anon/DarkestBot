@@ -18,13 +18,15 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+using DarkestBot.Protocol;
+
 namespace DarkestBot.UserCommands
 {
-    [Flags]
-    internal enum UserCommandMode
+    internal sealed class ChannelChatResponder(ICommandSender commandSender, string channelId) : IChatResponder
     {
-        None = 0,
-        Public = 1,
-        Private = 2
+        public void SendChatMessage(string message)
+        {
+            commandSender.SendCommand(CommandFactory.ChannelMessage(channelId, message));
+        }
     }
 }
